@@ -1,0 +1,91 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+.pnpm-debug.log
+pnpm-lock.yaml
+
+# TypeScript
+dist/
+build/
+*.tsbuildinfo
+
+# Hardhat / TypeChain / Solidity
+artifacts/
+cache/
+typechain-types/
+coverage/
+.solcoverjs
+*.dbg.json
+
+# OpenZeppelin upgrades
+.upgrades.json
+
+# NestJS
+dist/
+.env
+.env.*
+.env.local
+
+# Docker
+docker-compose.override.yml
+docker-compose.*.yml
+**/Dockerfile
+docker-compose.*.yml
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.whl
+venv/
+env/
+.venv/
+pip-wheel-metadata/
+celerybeat-schedule
+celerybeat.pid
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Secrets and keys
+*.pem
+*.key
+*.crt
+*.env
+*.secret
+secrets.json
+
+# GitHub Actions
+.github/*.local
+
+# OneDrive/temp
+~$*
+
+# Misc
+*.retry
+
+# Allow these
+!README.md
+!**/README.md
