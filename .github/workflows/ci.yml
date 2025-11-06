@@ -17,14 +17,14 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install root deps
-        run: npm install
-
-      - name: Install contracts deps
-        run: npm --prefix contracts install --legacy-peer-deps
+      - name: Install dependencies
+        working-directory: ./contracts
+        run: npm install --legacy-peer-deps
 
       - name: Compile contracts
-        run: npm --prefix contracts run compile
+        working-directory: ./contracts
+        run: npm run compile
 
       - name: Run contract tests
-        run: npm --prefix contracts run test
+        working-directory: ./contracts
+        run: npm run test

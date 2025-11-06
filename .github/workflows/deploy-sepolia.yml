@@ -14,19 +14,18 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install deps
-        run: npm install
-
-      - name: Install contracts deps
-        run: npm --prefix contracts install --legacy-peer-deps
+      - name: Install dependencies
+        working-directory: ./contracts
+        run: npm install --legacy-peer-deps
 
       - name: Compile
-        run: npm --prefix contracts run compile
+        working-directory: ./contracts
+        run: npm run compile
 
       - name: Deploy to Sepolia
+        working-directory: ./contracts
         env:
           ETHEREUM_RPC_URL_SEPOLIA: ${{ secrets.ETHEREUM_RPC_URL_SEPOLIA }}
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
-        run: |
-          npm --prefix contracts run deploy -- --network sepolia
+        run: npm run deploy -- --network sepolia
