@@ -59,7 +59,8 @@ async function main() {
   // Save deployment info to contracts/deployments/<network>.json
   try {
     const deploymentsDir = path.resolve(__dirname, "..", "deployments");
-    if (!fs.existsSync(deploymentsDir)) fs.mkdirSync(deploymentsDir, { recursive: true });
+    if (!fs.existsSync(deploymentsDir))
+      fs.mkdirSync(deploymentsDir, { recursive: true });
 
     const filePath = path.join(deploymentsDir, `${network.name}.json`);
     let existing = {} as any;

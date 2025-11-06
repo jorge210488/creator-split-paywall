@@ -71,13 +71,20 @@ describe("SubscriptionSplitPaywall", function () {
     await expect(tx).to.emit(sub, "SubscriptionStarted");
 
     const expiry = await sub.subscriptionExpiry(alice.address);
-    expect(expiry).to.be.a("bigint").that.is.greaterThan(BigInt(beforeBlock.timestamp));
+    expect(expiry)
+      .to.be.a("bigint")
+      .that.is.greaterThan(BigInt(beforeBlock.timestamp));
   });
 
   it("emits TipReceived when sending ETH directly to contract", async function () {
     await expect(
-      bob.sendTransaction({ to: sub.target ? sub.target : sub.address, value: ethers.parseEther("0.2") })
-    ).to.emit(sub, "TipReceived").withArgs(bob.address, ethers.parseEther("0.2"));
+      bob.sendTransaction({
+        to: sub.target ? sub.target : sub.address,
+        value: ethers.parseEther("0.2"),
+      })
+    )
+      .to.emit(sub, "TipReceived")
+      .withArgs(bob.address, ethers.parseEther("0.2"));
   });
 
   it("subscription expires after duration", async function () {
@@ -98,9 +105,9 @@ describe("SubscriptionSplitPaywall", function () {
       .withArgs(price, newPrice);
 
     // non-owner cannot change price
-    await expect(sub.connect(alice).setSubscriptionPrice(newPrice)).to.be.revertedWith(
-      "Ownable: caller is not the owner"
-    );
+    await expect(
+      sub.connect(alice).setSubscriptionPrice(newPrice)
+    ).to.be.revertedWith("Ownable: caller is not the owner");
 
     const newDuration = duration * 2;
     await expect(sub.connect(owner).setSubscriptionDuration(newDuration))
