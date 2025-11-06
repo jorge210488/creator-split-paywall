@@ -64,4 +64,47 @@ describe("SubscriptionSplitPaywall", function () {
     const released = await sub.released(payee1.address);
     expect(released).to.equal(ethers.parseEther("0.5"));
   });
+
+  it("emits SubscriptionStarted and records expiry correctly", async function () {
+    const beforeBlock = await ethers.provider.getBlock("latest");
+    const tx = await sub.connect(alice).subscribe({ value: price });
+    await expect(tx).to.emit(sub, "SubscriptionStarted");
+
+    const expiry = await sub.subscriptionExpiry(alice.address);
+    expect(expiry).to.be.a("bigint").that.is.greaterThan(BigInt(beforeBlock.timestamp));
+  });
+
+  it("emits TipReceived when sending ETH directly to contract", async function () {
+    await expect(
+      bob.sendTransaction({ to: sub.target ? sub.target : sub.address, value: ethers.parseEther("0.2") })
+    ).to.emit(sub, "TipReceived").withArgs(bob.address, ethers.parseEther("0.2"));
+  });
+
+  it("subscription expires after duration", async function () {
+    // subscribe for one period
+    await sub.connect(alice).subscribe({ value: price });
+
+    // advance time beyond duration
+    await ethers.provider.send("evm_increaseTime", [duration + 10]);
+    await ethers.provider.send("evm_mine", []);
+
+    expect(await sub.isActive(alice.address)).to.equal(false);
+  });
+
+  it("allows owner to update price and duration and rejects non-owner", async function () {
+    const newPrice = ethers.parseEther("0.2");
+    await expect(sub.connect(owner).setSubscriptionPrice(newPrice))
+      .to.emit(sub, "PriceUpdated")
+      .withArgs(price, newPrice);
+
+    // non-owner cannot change price
+    await expect(sub.connect(alice).setSubscriptionPrice(newPrice)).to.be.revertedWith(
+      "Ownable: caller is not the owner"
+    );
+
+    const newDuration = duration * 2;
+    await expect(sub.connect(owner).setSubscriptionDuration(newDuration))
+      .to.emit(sub, "DurationUpdated")
+      .withArgs(duration, newDuration);
+  });
 });

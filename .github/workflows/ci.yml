@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install root deps
+        run: npm ci
+
+      - name: Install contracts deps
+        run: npm --prefix contracts ci
+
+      - name: Compile contracts
+        run: npm --prefix contracts run compile
+
+      - name: Run contract tests
+        run: npm --prefix contracts run test

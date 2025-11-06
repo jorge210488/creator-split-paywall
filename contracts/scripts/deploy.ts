@@ -1,4 +1,7 @@
 import { ethers, upgrades } from "hardhat";
+import fs from "fs";
+import path from "path";
+import { network } from "hardhat";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -29,10 +32,11 @@ async function main() {
   console.log("Proxy address:", proxyAddress);
 
   // Attempt to verify implementation contract if ETHERSCAN_API_KEY is set
+  let impl: string | null = null;
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { run } = require("hardhat");
-    const impl = await upgrades.erc1967.getImplementationAddress(proxyAddress);
+    impl = await upgrades.erc1967.getImplementationAddress(proxyAddress);
     if (process.env.ETHERSCAN_API_KEY && impl) {
       console.log("Verifying implementation at:", impl);
       await run("verify:verify", { address: impl, constructorArguments: [] });
@@ -51,6 +55,35 @@ async function main() {
   }
 
   console.log("Done");
+
+  // Save deployment info to contracts/deployments/<network>.json
+  try {
+    const deploymentsDir = path.resolve(__dirname, "..", "deployments");
+    if (!fs.existsSync(deploymentsDir)) fs.mkdirSync(deploymentsDir, { recursive: true });
+
+    const filePath = path.join(deploymentsDir, `${network.name}.json`);
+    let existing = {} as any;
+    if (fs.existsSync(filePath)) {
+      try {
+        existing = JSON.parse(fs.readFileSync(filePath, "utf8"));
+      } catch {}
+    }
+
+    const toWrite = {
+      network: network.name,
+      deployer: await (await ethers.getSigners())[0].getAddress(),
+      SubscriptionSplitPaywall: {
+        proxy: proxyAddress,
+        implementation: impl || null,
+      },
+      ...(existing || {}),
+    };
+
+    fs.writeFileSync(filePath, JSON.stringify(toWrite, null, 2));
+    console.log(`Saved deployment to ${filePath}`);
+  } catch (err) {
+    console.warn("Failed to write deployment file:", err);
+  }
 }
 
 main().catch((error) => {
