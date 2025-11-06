@@ -20,6 +20,7 @@ A decentralized paywall system that allows content creators to split their earni
 ## Development
 
 ### Smart Contracts
+
 ```bash
 cd contracts
 npm install
@@ -28,6 +29,7 @@ npx hardhat test
 ```
 
 ### Backend
+
 ```bash
 cd backend
 npm install
@@ -35,6 +37,7 @@ npm run start:dev
 ```
 
 ### Analytics
+
 ```bash
 cd analytics
 pip install -r requirements.txt

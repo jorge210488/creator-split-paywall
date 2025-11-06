@@ -1,26 +1,28 @@
-import { Controller, Get } from '@nestjs/common';
-import { HealthCheck, HealthCheckService, TypeOrmHealthIndicator } from '@nestjs/terminus';
+import { Controller, Get } from "@nestjs/common";
+import {
+  HealthCheck,
+  HealthCheckService,
+  TypeOrmHealthIndicator,
+} from "@nestjs/terminus";
 
-@Controller('health')
+@Controller("health")
 export class HealthController {
   constructor(
     private health: HealthCheckService,
-    private db: TypeOrmHealthIndicator,
+    private db: TypeOrmHealthIndicator
   ) {}
 
   // Liveness probe: quick check to verify the app process is alive
-  @Get('live')
+  @Get("live")
   liveness() {
-    return { status: 'ok' };
+    return { status: "ok" };
   }
 
   // Readiness probe: checks dependencies like the database
-  @Get('ready')
+  @Get("ready")
   @HealthCheck()
   readiness() {
-    return this.health.check([
-      () => this.db.pingCheck('database'),
-    ]);
+    return this.health.check([() => this.db.pingCheck("database")]);
   }
 
   // Backwards-compatible root endpoint -> readiness
