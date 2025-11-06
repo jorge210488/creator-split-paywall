@@ -15,10 +15,10 @@ jobs:
           node-version: '20'
 
       - name: Install deps
-        run: npm ci
+        run: npm install
 
       - name: Install contracts deps
-        run: npm --prefix contracts ci
+        run: npm --prefix contracts install --legacy-peer-deps
 
       - name: Compile
         run: npm --prefix contracts run compile
