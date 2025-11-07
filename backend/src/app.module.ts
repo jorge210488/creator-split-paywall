@@ -1,9 +1,12 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-import { TypeOrmModule } from "@nestjs/typeorm";
 import { HealthModule } from "./health/health.module";
+import { DatabaseModule } from "./database/database.module";
 import { BlockchainModule } from "./blockchain/blockchain.module";
 import { SubscriptionModule } from "./subscription/subscription.module";
+import { WebhooksModule } from "./webhooks/webhooks.module";
+import { PayoutModule } from "./payout/payout.module";
+import { ConfigChangeModule } from "./config-change/config-change.module";
 import { envConfig } from "./common/config/env.config";
 
 @Module({
@@ -12,15 +15,13 @@ import { envConfig } from "./common/config/env.config";
       load: [envConfig],
       isGlobal: true,
     }),
-    TypeOrmModule.forRoot({
-      type: "postgres",
-      url: process.env.DATABASE_URL,
-      autoLoadEntities: true,
-      synchronize: process.env.NODE_ENV !== "production",
-    }),
+    DatabaseModule,
     HealthModule,
     BlockchainModule,
     SubscriptionModule,
+    WebhooksModule,
+    PayoutModule,
+    ConfigChangeModule,
   ],
 })
 export class AppModule {}

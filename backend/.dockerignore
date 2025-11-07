@@ -13,6 +13,9 @@ secrets.json
 .gitignore
 .vscode
 
+# Ignore migration files generated in root (they auto-run anyway)
+*-*.ts
+
 # Ignore tests and docs from image context (optional)
 TESTING.md
 coverage

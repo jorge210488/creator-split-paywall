@@ -5,8 +5,9 @@ services:
     build: ./backend
     ports:
       - "3000:3000"
+    # Use backend-specific docker env (keeps local dev .env separate)
     env_file:
-      - .env
+      - ./backend/.env.docker
     depends_on:
       - postgres
       - redis
@@ -14,7 +15,7 @@ services:
   analytics:
     build: ./analytics
     env_file:
-      - .env
+      - ./analytics/.env
     depends_on:
       - redis
       - postgres
