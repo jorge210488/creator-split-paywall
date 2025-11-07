@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    # Use a production env file NOT committed to VCS (create backend/.env.prod from .env.prod.example)
+    env_file:
+      - ./backend/.env.prod
+    depends_on:
+      - postgres
+      - redis
+
+  redis:
+    image: redis:alpine
+    # Do not expose redis to the public internet in prod
+    # No ports section means it's only accessible within the docker network
+
+  postgres:
+    image: postgres:13
+    # Do not expose postgres to the public internet in prod
+    # No ports section means it's only accessible within the docker network
+    env_file:
+      - ./infra/postgres.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  postgres_data:

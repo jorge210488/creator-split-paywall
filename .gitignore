@@ -39,8 +39,9 @@ dist/
 # Docker
 docker-compose.override.yml
 docker-compose.*.yml
+# Allow prod compose in repo
+!docker-compose.prod.yml
 **/Dockerfile
-docker-compose.*.yml
 
 # Python
 __pycache__/
@@ -85,6 +86,9 @@ desktop.ini
 *.env
 *.secret
 secrets.json
+# Allow example envs
+!**/.env.example
+!**/.env.prod.example
 
 # GitHub Actions
 .github/*.local

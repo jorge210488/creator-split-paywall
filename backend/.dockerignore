@@ -1,0 +1,25 @@
+# Exclude secrets from Docker build context
+.env
+a.env
+.env.*
+*.env
+*.pem
+*.key
+*.crt
+secrets.json
+
+# Ignore git and local files
+.git
+.gitignore
+.vscode
+
+# Ignore tests and docs from image context (optional)
+TESTING.md
+coverage
+
+# Node/npm junk not needed in context
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log
+pnpm-lock.yaml
