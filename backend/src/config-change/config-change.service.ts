@@ -1,33 +1,39 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere } from 'typeorm';
-import { ConfigChange, ConfigChangeType } from '../entities/config-change.entity';
-import { ethers } from 'ethers';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository, FindOptionsWhere } from "typeorm";
+import {
+  ConfigChange,
+  ConfigChangeType,
+} from "../entities/config-change.entity";
+import { ethers } from "ethers";
 
 @Injectable()
 export class ConfigChangeService {
   constructor(
     @InjectRepository(ConfigChange)
-    private configChangeRepository: Repository<ConfigChange>,
+    private configChangeRepository: Repository<ConfigChange>
   ) {}
 
   async getConfigChanges(page: number = 1, limit: number = 10, type?: string) {
     limit = Math.min(limit, 100); // Cap at 100
 
     const where: FindOptionsWhere<ConfigChange> = {};
-    if (type && Object.values(ConfigChangeType).includes(type as ConfigChangeType)) {
+    if (
+      type &&
+      Object.values(ConfigChangeType).includes(type as ConfigChangeType)
+    ) {
       where.changeType = type as ConfigChangeType;
     }
 
     const [changes, total] = await this.configChangeRepository.findAndCount({
       where,
-      order: { timestamp: 'DESC' },
+      order: { timestamp: "DESC" },
       take: limit,
       skip: (page - 1) * limit,
     });
 
     return {
-      changes: changes.map(change => {
+      changes: changes.map((change) => {
         const baseChange = {
           id: change.id,
           changeType: change.changeType,

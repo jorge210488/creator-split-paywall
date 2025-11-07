@@ -14,7 +14,10 @@ import { Payment } from "../entities/payment.entity";
 import { ProcessedEvent } from "../entities/processed-event.entity";
 import { Contract } from "../entities/contract.entity";
 import { Payout } from "../entities/payout.entity";
-import { ConfigChange, ConfigChangeType } from "../entities/config-change.entity";
+import {
+  ConfigChange,
+  ConfigChangeType,
+} from "../entities/config-change.entity";
 import subscriptionAbi from "./abi/subscription.abi.json";
 import { BlockchainStatusDto } from "./dto/blockchain-status.dto";
 
@@ -43,7 +46,7 @@ export class BlockchainService implements OnModuleInit {
     @InjectRepository(Payout)
     private payoutRepository: Repository<Payout>,
     @InjectRepository(ConfigChange)
-    private configChangeRepository: Repository<ConfigChange>,
+    private configChangeRepository: Repository<ConfigChange>
   ) {}
 
   private initPromise: Promise<void> | null = null;
@@ -376,7 +379,9 @@ export class BlockchainService implements OnModuleInit {
 
       this.eventsProcessedCount++;
       this.logger.log(
-        `Processed payment release: ${normalizedPayee} received ${ethers.formatEther(amount)} ETH (tx: ${txHash})`
+        `Processed payment release: ${normalizedPayee} received ${ethers.formatEther(
+          amount
+        )} ETH (tx: ${txHash})`
       );
     } catch (error) {
       this.logger.error(
@@ -435,7 +440,9 @@ export class BlockchainService implements OnModuleInit {
 
       this.eventsProcessedCount++;
       this.logger.log(
-        `Processed price update: ${ethers.formatEther(oldPrice)} ETH → ${ethers.formatEther(newPrice)} ETH (tx: ${txHash})`
+        `Processed price update: ${ethers.formatEther(
+          oldPrice
+        )} ETH → ${ethers.formatEther(newPrice)} ETH (tx: ${txHash})`
       );
     } catch (error) {
       this.logger.error(
