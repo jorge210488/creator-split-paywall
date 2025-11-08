@@ -38,6 +38,27 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+      - name: Prepare environment files for CI
+        run: |
+          # Root .env for postgres service
+          cp .env.example .env
+          sed -i 's/your_password/ci_test_password/g' .env
+          sed -i 's/your_infura_key/dummy_infura_key/g' .env
+          sed -i 's/your_private_key/0x0000000000000000000000000000000000000000000000000000000000000001/g' .env
+          sed -i 's/your_jwt_secret/ci_test_jwt_secret/g' .env
+          
+          # Backend .env.docker
+          cp backend/.env.prod.example backend/.env.docker
+          sed -i 's/CHANGE_ME/ci_test_password/g' backend/.env.docker
+          sed -i 's/your-project-id/dummy_infura_key/g' backend/.env.docker
+          sed -i 's/your-super-secret-jwt-key-change-in-production/ci_test_jwt_secret/g' backend/.env.docker
+          sed -i 's/your-analytics-webhook-token-change-in-production/super-secret-analytics-token-2025/g' backend/.env.docker
+          sed -i 's/0x\.\.\./0x0000000000000000000000000000000000000000/g' backend/.env.docker
+          
+          # Analytics .env
+          cp analytics/.env.example analytics/.env
+          sed -i 's/your_password/ci_test_password/g' analytics/.env
+          sed -i 's/your-analytics-webhook-token/super-secret-analytics-token-2025/g' analytics/.env
       - name: Start backend & analytics via docker compose
         run: |
           docker compose up -d backend analytics-worker analytics-beat
