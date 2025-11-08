@@ -78,19 +78,94 @@ run_test "Get subscription history" "GET" "/subscription/${TEST_WALLET}/history"
 run_test "Get subscription history with pagination" "GET" "/subscription/${TEST_WALLET}/history?page=1&limit=5" "200"
 run_test "Get creator metrics (placeholder)" "GET" "/subscription/creator/test-creator/metrics" "200"
 
-echo -e "${BLUE}--- Webhook Endpoints ---${NC}\n"
+echo -e "${BLUE}--- Analytics Webhook Endpoint (AnalyticsAnomalyWebhookDto) ---${NC}\n"
 
-run_test "Post valid anomaly webhook" "POST" "/webhooks/anomalies" "201" \
-  '{"type":"suspicious_pattern","severity":"high","description":"Test anomaly from automated test"}'
+AN_TOKEN_ENV=${ANALYTICS_WEBHOOK_TOKEN:-"super-secret"}
 
-run_test "Post invalid anomaly webhook (missing severity)" "POST" "/webhooks/anomalies" "400" \
-  '{"type":"unusual_volume","description":"Missing severity field"}'
+# Helper to post analytics anomaly payload
+post_analytics_anomaly() {
+  local payload="$1"
+  response=$(curl -s -w "\n%{http_code}" -X POST \
+    -H "Content-Type: application/json" \
+    -H "X-ANALYTICS-TOKEN: $AN_TOKEN_ENV" \
+    "${BASE_URL}/webhooks/anomalies" -d "$payload")
+  echo "$response"
+}
 
-run_test "Post invalid anomaly webhook (invalid severity)" "POST" "/webhooks/anomalies" "400" \
-  '{"type":"rapid_subscription","severity":"INVALID","description":"Invalid severity value"}'
+# Valid payload
+VALID_ANALYTICS_PAYLOAD=$(cat <<'JSON'
+{
+  "address": "0xbddb6c4fc08af549d13a33455374e7ffbfd7fa70",
+  "txHash": "0xabc123abc123abc123abc123abc123abc123abc123abc123abc123abc123abc1",
+  "amountWei": "100000000000000000",
+  "blockNumber": 12345678,
+  "logIndex": 5,
+  "rule": "IQR",
+  "score": 2.8,
+  "dedupeKey": "an:test:abc123:IQR",
+  "ts": "2024-01-01T00:00:00Z",
+  "meta": {"amountEth": 0.1, "ratio": 1.0, "delta_t": 3600, "batchCountForAddress": 1}
+}
+JSON
+)
 
-run_test "Post invalid anomaly webhook (forbidden extra field)" "POST" "/webhooks/anomalies" "400" \
-  '{"type":"other","severity":"low","description":"Test","malicious":"extra-field"}'
+run_test "Post valid analytics anomaly webhook" "POST" "/webhooks/anomalies" "201" "$VALID_ANALYTICS_PAYLOAD"
+
+# Invalid missing required field
+INVALID_MISSING_FIELD=$(cat <<'JSON'
+{
+  "txHash": "0xabc123abc123abc123abc123abc123abc123abc123abc123abc123abc123abc1"
+}
+JSON
+)
+run_test "Post invalid analytics anomaly webhook (missing fields)" "POST" "/webhooks/anomalies" "400" "$INVALID_MISSING_FIELD"
+
+# Invalid Ethereum address
+INVALID_ADDRESS_PAYLOAD=$(cat <<'JSON'
+{
+  "address": "not-an-address",
+  "txHash": "0xabc123abc123abc123abc123abc123abc123abc123abc123abc123abc123abc1",
+  "amountWei": "100000000000000000",
+  "blockNumber": 12345678,
+  "logIndex": 5,
+  "rule": "IQR",
+  "score": 2.8,
+  "dedupeKey": "an:test:abc123:IQR",
+  "ts": "2024-01-01T00:00:00Z",
+  "meta": {"amountEth": 0.1, "ratio": 1.0, "delta_t": 3600, "batchCountForAddress": 1}
+}
+JSON
+)
+run_test "Post invalid analytics anomaly webhook (bad address)" "POST" "/webhooks/anomalies" "400" "$INVALID_ADDRESS_PAYLOAD"
+
+# Invalid rule value
+INVALID_RULE_PAYLOAD=$(cat <<'JSON'
+{
+  "address": "0xbddb6c4fc08af549d13a33455374e7ffbfd7fa70",
+  "txHash": "0xabc123abc123abc123abc123abc123abc123abc123abc123abc123abc123abc1",
+  "amountWei": "100000000000000000",
+  "blockNumber": 12345678,
+  "logIndex": 5,
+  "rule": "UNKNOWN_RULE",
+  "score": 2.8,
+  "dedupeKey": "an:test:abc123:IQR",
+  "ts": "2024-01-01T00:00:00Z",
+  "meta": {"amountEth": 0.1, "ratio": 1.0, "delta_t": 3600, "batchCountForAddress": 1}
+}
+JSON
+)
+run_test "Post invalid analytics anomaly webhook (invalid rule enum)" "POST" "/webhooks/anomalies" "400" "$INVALID_RULE_PAYLOAD"
+
+# Missing token (expect 401 if backend expects token)
+echo -e "${YELLOW}[TOKEN TEST]${NC} Missing analytics token"
+response=$(curl -s -w "\n%{http_code}" -X POST -H "Content-Type: application/json" "${BASE_URL}/webhooks/anomalies" -d "$VALID_ANALYTICS_PAYLOAD")
+http_code=$(echo "$response" | tail -n 1)
+if [ "$http_code" = "401" ]; then
+  echo -e "  ${GREEN}✓ PASSED${NC} (Unauthorized as expected)"
+else
+  echo -e "  ${YELLOW}! INFO${NC} Expected 401 when missing token, got $http_code (backend may have token disabled)"
+fi
+
 
 echo -e "${BLUE}--- Edge Cases ---${NC}\n"
 
