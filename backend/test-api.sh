@@ -32,14 +32,23 @@ run_test() {
   local endpoint="$3"
   local expected_status="$4"
   local data="$5"
+  local extra_header="$6"
   
   TOTAL=$((TOTAL + 1))
   echo -e "${YELLOW}[TEST $TOTAL]${NC} $name"
   
   if [ -z "$data" ]; then
-    response=$(curl -s -w "\n%{http_code}" -X "$method" "${BASE_URL}${endpoint}" -H "Content-Type: application/json")
+    if [ -z "$extra_header" ]; then
+      response=$(curl -s -w "\n%{http_code}" -X "$method" "${BASE_URL}${endpoint}" -H "Content-Type: application/json")
+    else
+      response=$(curl -s -w "\n%{http_code}" -X "$method" "${BASE_URL}${endpoint}" -H "Content-Type: application/json" -H "$extra_header")
+    fi
   else
-    response=$(curl -s -w "\n%{http_code}" -X "$method" "${BASE_URL}${endpoint}" -H "Content-Type: application/json" -d "$data")
+    if [ -z "$extra_header" ]; then
+      response=$(curl -s -w "\n%{http_code}" -X "$method" "${BASE_URL}${endpoint}" -H "Content-Type: application/json" -d "$data")
+    else
+      response=$(curl -s -w "\n%{http_code}" -X "$method" "${BASE_URL}${endpoint}" -H "Content-Type: application/json" -H "$extra_header" -d "$data")
+    fi
   fi
   
   http_code=$(echo "$response" | tail -n 1)
@@ -80,7 +89,7 @@ run_test "Get creator metrics (placeholder)" "GET" "/subscription/creator/test-c
 
 echo -e "${BLUE}--- Analytics Webhook Endpoint (AnalyticsAnomalyWebhookDto) ---${NC}\n"
 
-AN_TOKEN_ENV=${ANALYTICS_WEBHOOK_TOKEN:-"super-secret"}
+AN_TOKEN_ENV=${ANALYTICS_WEBHOOK_TOKEN:-"super-secret-analytics-token-2025"}
 
 # Helper to post analytics anomaly payload
 post_analytics_anomaly() {
@@ -109,7 +118,7 @@ VALID_ANALYTICS_PAYLOAD=$(cat <<'JSON'
 JSON
 )
 
-run_test "Post valid analytics anomaly webhook" "POST" "/webhooks/anomalies" "201" "$VALID_ANALYTICS_PAYLOAD"
+run_test "Post valid analytics anomaly webhook" "POST" "/webhooks/anomalies" "201" "$VALID_ANALYTICS_PAYLOAD" "X-ANALYTICS-TOKEN: $AN_TOKEN_ENV"
 
 # Invalid missing required field
 INVALID_MISSING_FIELD=$(cat <<'JSON'
@@ -154,7 +163,7 @@ INVALID_RULE_PAYLOAD=$(cat <<'JSON'
 }
 JSON
 )
-run_test "Post invalid analytics anomaly webhook (invalid rule enum)" "POST" "/webhooks/anomalies" "400" "$INVALID_RULE_PAYLOAD"
+run_test "Post invalid analytics anomaly webhook (invalid rule enum)" "POST" "/webhooks/anomalies" "400" "$INVALID_RULE_PAYLOAD" "X-ANALYTICS-TOKEN: $AN_TOKEN_ENV"
 
 # Missing token (expect 401 if backend expects token)
 echo -e "${YELLOW}[TOKEN TEST]${NC} Missing analytics token"
