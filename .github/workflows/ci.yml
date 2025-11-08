@@ -74,9 +74,16 @@ jobs:
           done
           docker compose exec -T postgres psql -U admin -d creator_split_db -c "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";"
           docker compose exec -T postgres psql -U admin -d creator_split_db -c "CREATE EXTENSION IF NOT EXISTS pgcrypto;"
+      - name: Wait for backend to be responsive
+        run: |
+          ATTEMPTS=30
+          until docker compose exec -T backend ls /usr/src/app/dist/main.js >/dev/null 2>&1 || [ $ATTEMPTS -eq 0 ]; do
+            echo "Waiting for backend build... ($ATTEMPTS)"; ATTEMPTS=$((ATTEMPTS-1)); sleep 3;
+          done
       - name: Run DB migrations
         run: |
-          docker compose exec -T backend npm run typeorm:migrate:run
+          echo "Running TypeORM migrations..."
+          docker compose exec -T backend npm run typeorm:migrate:run || (echo "Migration failed" && docker compose logs backend && exit 1)
       - name: Wait for backend health
         run: |
           ATTEMPTS=30

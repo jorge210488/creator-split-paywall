@@ -553,8 +553,14 @@ export class BlockchainService implements OnModuleInit {
     const normalizedAddress = address.toLowerCase();
 
     if (!this.contract) {
-      this.logger.warn("Contract not initialized yet");
-      throw new ServiceUnavailableException("Blockchain contract not ready");
+      this.logger.warn("Contract not initialized - returning inactive status");
+      // Return inactive status instead of throwing 503 when blockchain is disabled
+      return {
+        address: normalizedAddress,
+        active: false,
+        expiresAt: null,
+        expiryTimestamp: "0",
+      };
     }
 
     try {

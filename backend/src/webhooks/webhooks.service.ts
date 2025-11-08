@@ -51,53 +51,75 @@ export class WebhooksService {
       `Received analytics anomaly: ${dto.rule} for ${dto.address} (score: ${dto.score})`
     );
 
-    // Get or create wallet
-    const normalizedAddress = dto.address.toLowerCase();
-    let wallet = await this.walletRepository.findOne({
-      where: { address: normalizedAddress },
-    });
+    try {
+      // Get or create wallet
+      const normalizedAddress = dto.address.toLowerCase();
+      let wallet = await this.walletRepository.findOne({
+        where: { address: normalizedAddress },
+      });
 
-    if (!wallet) {
-      wallet = this.walletRepository.create({ address: normalizedAddress });
-      await this.walletRepository.save(wallet);
+      if (!wallet) {
+        this.logger.debug(`Creating new wallet for ${normalizedAddress}`);
+        wallet = this.walletRepository.create({ address: normalizedAddress });
+        await this.walletRepository.save(wallet);
+      }
+
+      // Determine severity based on score and rule
+      let severity: AnomalySeverity;
+      if (dto.score >= 4.0 || dto.rule === "ISOLATION_FOREST") {
+        severity = AnomalySeverity.HIGH;
+      } else if (dto.score >= 2.5) {
+        severity = AnomalySeverity.MEDIUM;
+      } else {
+        severity = AnomalySeverity.LOW;
+      }
+
+      // Build description
+      const description = `Payment anomaly detected: ${dto.meta.amountEth.toFixed(
+        6
+      )} ETH (${dto.meta.ratio.toFixed(2)}x normal) via ${dto.rule}`;
+
+      // Create anomaly record
+      const anomaly = this.anomalyRepository.create({
+        type: AnomalyType.UNUSUAL_PAYMENT_AMOUNT,
+        severity,
+        walletAddress: normalizedAddress,
+        description,
+        metadata: {
+          txHash: dto.txHash,
+          blockNumber: dto.blockNumber,
+          logIndex: dto.logIndex,
+          amountWei: dto.amountWei,
+          rule: dto.rule,
+          score: dto.score,
+          dedupeKey: dto.dedupeKey,
+          ts: dto.ts,
+          ...dto.meta,
+        },
+        resolved: false,
+      });
+
+      this.logger.debug(`Saving anomaly to DB`, { anomaly });
+      await this.anomalyRepository.save(anomaly);
+
+      this.logger.log(
+        `Analytics anomaly saved: ${anomaly.id} (${severity}) - ${dto.txHash}`
+      );
+
+      return {
+        success: true,
+        anomalyId: anomaly.id,
+        message: "Analytics anomaly recorded successfully",
+        severity,
+      };
+    } catch (error) {
+      this.logger.error(
+        `Failed to save analytics anomaly: ${error.message}`,
+        error.stack
+      );
+      throw error; // Re-throw so Nest returns 500 with actual error
     }
-
-    // Determine severity based on score and rule
-    let severity: AnomalySeverity;
-    if (dto.score >= 4.0 || dto.rule === "ISOLATION_FOREST") {
-      severity = AnomalySeverity.HIGH;
-    } else if (dto.score >= 2.5) {
-      severity = AnomalySeverity.MEDIUM;
-    } else {
-      severity = AnomalySeverity.LOW;
-    }
-
-    // Build description
-    const description = `Payment anomaly detected: ${dto.meta.amountEth.toFixed(
-      6
-    )} ETH (${dto.meta.ratio.toFixed(2)}x normal) via ${dto.rule}`;
-
-    // Create anomaly record
-    const anomaly = this.anomalyRepository.create({
-      type: AnomalyType.UNUSUAL_PAYMENT_AMOUNT,
-      severity,
-      walletAddress: normalizedAddress,
-      description,
-      metadata: {
-        txHash: dto.txHash,
-        blockNumber: dto.blockNumber,
-        logIndex: dto.logIndex,
-        amountWei: dto.amountWei,
-        rule: dto.rule,
-        score: dto.score,
-        dedupeKey: dto.dedupeKey,
-        ts: dto.ts,
-        ...dto.meta,
-      },
-      resolved: false,
-    });
-
-    await this.anomalyRepository.save(anomaly);
+  }
 
     this.logger.log(
       `Analytics anomaly saved: ${anomaly.id} (${severity}) - ${dto.txHash}`
