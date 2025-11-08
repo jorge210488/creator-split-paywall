@@ -29,7 +29,7 @@ WITH w AS (
 )
 INSERT INTO payments (id, wallet_id, amount, tx_hash, block_number, log_index, timestamp, created_at)
 SELECT gen_random_uuid(), w.id,
-       amt::text,
+       amt::numeric,
        '0x'||substr(md5(random()::text),1,60) as tx_hash,
        9999990 + seq as block_number,
        seq as log_index,
