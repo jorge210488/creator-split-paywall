@@ -1,8 +1,17 @@
-# Environment files
+# Environment files - NEVER commit real secrets
 .env
 **/.env
+.env.*
+**/.env.*
+.env.local
+**/.env.local
+.env.docker
+**/.env.docker
+# Allow ONLY example files
 !.env.example
 !**/.env.example
+!.env.prod.example
+!**/.env.prod.example
 
 # Node
 node_modules/
@@ -18,6 +27,12 @@ pnpm-lock.yaml
 dist/
 build/
 *.tsbuildinfo
+# Compiled files in wrong locations (should be in dist/)
+backend/*.js
+backend/*.d.ts
+backend/*.js.map
+!backend/ormconfig.js
+!backend/entrypoint.sh
 
 # Hardhat / TypeChain / Solidity
 artifacts/

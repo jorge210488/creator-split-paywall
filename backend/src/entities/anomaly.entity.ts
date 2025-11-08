@@ -10,6 +10,7 @@ export enum AnomalyType {
   SUSPICIOUS_PATTERN = "suspicious_pattern",
   UNUSUAL_VOLUME = "unusual_volume",
   RAPID_SUBSCRIPTION = "rapid_subscription",
+  UNUSUAL_PAYMENT_AMOUNT = "unusual_payment_amount",
   OTHER = "other",
 }
 

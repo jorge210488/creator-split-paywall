@@ -20,6 +20,28 @@ services:
       - redis
       - postgres
 
+  analytics-worker:
+    build: ./analytics
+    command: ["celery", "-A", "celery_app.app", "worker", "-l", "info"]
+    env_file:
+      - ./analytics/.env
+    depends_on:
+      - redis
+      - postgres
+      - backend
+    restart: unless-stopped
+
+  analytics-beat:
+    build: ./analytics
+    command: ["celery", "-A", "celery_app.app", "beat", "-l", "info"]
+    env_file:
+      - ./analytics/.env
+    depends_on:
+      - redis
+      - postgres
+      - backend
+    restart: unless-stopped
+
   redis:
     image: redis:alpine
     ports:

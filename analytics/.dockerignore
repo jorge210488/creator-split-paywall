@@ -1,0 +1,41 @@
+# Exclude secrets from Docker build context
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.crt
+secrets.json
+
+# Ignore git and local files
+.git
+.gitignore
+.vscode
+
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.whl
+venv/
+env/
+.venv/
+pip-wheel-metadata/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Logs
+*.log
+
+# Tests and docs
+tests/
+test_*.py
+*.md
+!README.md

@@ -1,8 +1,16 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Anomaly } from "../entities/anomaly.entity";
-import { AnomalyWebhookDto } from "./dto/anomaly-webhook.dto";
+import {
+  Anomaly,
+  AnomalyType,
+  AnomalySeverity,
+} from "../entities/anomaly.entity";
+import {
+  AnomalyWebhookDto,
+  AnalyticsAnomalyWebhookDto,
+} from "./dto/anomaly-webhook.dto";
+import { Wallet } from "../entities/wallet.entity";
 
 @Injectable()
 export class WebhooksService {
@@ -10,7 +18,9 @@ export class WebhooksService {
 
   constructor(
     @InjectRepository(Anomaly)
-    private anomalyRepository: Repository<Anomaly>
+    private anomalyRepository: Repository<Anomaly>,
+    @InjectRepository(Wallet)
+    private walletRepository: Repository<Wallet>
   ) {}
 
   async handleAnomaly(dto: AnomalyWebhookDto) {
@@ -33,6 +43,71 @@ export class WebhooksService {
       success: true,
       anomalyId: anomaly.id,
       message: "Anomaly recorded successfully",
+    };
+  }
+
+  async handleAnalyticsAnomaly(dto: AnalyticsAnomalyWebhookDto) {
+    this.logger.log(
+      `Received analytics anomaly: ${dto.rule} for ${dto.address} (score: ${dto.score})`
+    );
+
+    // Get or create wallet
+    const normalizedAddress = dto.address.toLowerCase();
+    let wallet = await this.walletRepository.findOne({
+      where: { address: normalizedAddress },
+    });
+
+    if (!wallet) {
+      wallet = this.walletRepository.create({ address: normalizedAddress });
+      await this.walletRepository.save(wallet);
+    }
+
+    // Determine severity based on score and rule
+    let severity: AnomalySeverity;
+    if (dto.score >= 4.0 || dto.rule === "ISOLATION_FOREST") {
+      severity = AnomalySeverity.HIGH;
+    } else if (dto.score >= 2.5) {
+      severity = AnomalySeverity.MEDIUM;
+    } else {
+      severity = AnomalySeverity.LOW;
+    }
+
+    // Build description
+    const description = `Payment anomaly detected: ${dto.meta.amountEth.toFixed(
+      6
+    )} ETH (${dto.meta.ratio.toFixed(2)}x normal) via ${dto.rule}`;
+
+    // Create anomaly record
+    const anomaly = this.anomalyRepository.create({
+      type: AnomalyType.UNUSUAL_PAYMENT_AMOUNT,
+      severity,
+      walletAddress: normalizedAddress,
+      description,
+      metadata: {
+        txHash: dto.txHash,
+        blockNumber: dto.blockNumber,
+        logIndex: dto.logIndex,
+        amountWei: dto.amountWei,
+        rule: dto.rule,
+        score: dto.score,
+        dedupeKey: dto.dedupeKey,
+        ts: dto.ts,
+        ...dto.meta,
+      },
+      resolved: false,
+    });
+
+    await this.anomalyRepository.save(anomaly);
+
+    this.logger.log(
+      `Analytics anomaly saved: ${anomaly.id} (${severity}) - ${dto.txHash}`
+    );
+
+    return {
+      success: true,
+      anomalyId: anomaly.id,
+      message: "Analytics anomaly recorded successfully",
+      severity,
     };
   }
 }
