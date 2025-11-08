@@ -32,48 +32,22 @@ jobs:
 
   backend-analytics:
     runs-on: ubuntu-latest
-    services:
-      redis:
-        image: redis:alpine
-        ports: ["6379:6379"]
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_USER: admin
-          POSTGRES_PASSWORD: 18034783
-          POSTGRES_DB: creator_split_db
-        ports: ["5432:5432"]
-        options: >-
-          --health-cmd="pg_isready -U admin -d creator_split_db" \
-          --health-interval=10s --health-timeout=5s --health-retries=5
     steps:
       - uses: actions/checkout@v4
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.9'
-      - name: Install backend deps
-        working-directory: ./backend
-        run: |
-          npm ci --legacy-peer-deps
-      - name: Build backend
-        working-directory: ./backend
-        run: |
-          npm run build || echo "Build step optional / ignoring failures for now"
-      - name: Install analytics python deps
-        working-directory: ./analytics
-        run: |
-          pip install -r requirements.txt
-      - name: Create pgcrypto extension
-        run: |
-          docker exec $(docker ps --filter "ancestor=postgres:13" --format '{{.ID}}') psql -U admin -d creator_split_db -c "CREATE EXTENSION IF NOT EXISTS pgcrypto;"
-      - name: Start backend & celery (docker compose)
+      - name: Start backend & analytics via docker compose
         run: |
           docker compose up -d backend analytics-worker analytics-beat
+      - name: Wait for Postgres and create pgcrypto extension
+        run: |
+          ATTEMPTS=30
+          until docker compose exec -T postgres pg_isready -U admin -d creator_split_db >/dev/null 2>&1 || [ $ATTEMPTS -eq 0 ]; do
+            echo "Waiting for Postgres... ($ATTEMPTS)"; ATTEMPTS=$((ATTEMPTS-1)); sleep 5;
+          done
+          docker compose exec -T postgres psql -U admin -d creator_split_db -c "CREATE EXTENSION IF NOT EXISTS pgcrypto;"
       - name: Wait for backend health
         run: |
           ATTEMPTS=30
