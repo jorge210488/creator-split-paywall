@@ -16,12 +16,12 @@ echo "Backend URL: $BACKEND_BASE_URL"
 
 echo "--- Backend API tests ---"
 pushd "$ROOT_DIR/backend" >/dev/null
-./test-api.sh "$BACKEND_BASE_URL"
+bash test-api.sh "$BACKEND_BASE_URL"
 popd >/dev/null
 
 echo "--- Analytics webhook test ---"
 pushd "$ROOT_DIR/analytics" >/dev/null
-./test-webhook.sh "$BACKEND_BASE_URL"
+bash test-webhook.sh "$BACKEND_BASE_URL"
 popd >/dev/null
 
 if [ "${RUN_CONTRACTS:-0}" = "1" ]; then
