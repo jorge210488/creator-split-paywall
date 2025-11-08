@@ -54,6 +54,8 @@ jobs:
           sed -i 's/your-super-secret-jwt-key-change-in-production/ci_test_jwt_secret/g' backend/.env.docker
           sed -i 's/your-analytics-webhook-token-change-in-production/super-secret-analytics-token-2025/g' backend/.env.docker
           sed -i 's/0x\.\.\./0x0000000000000000000000000000000000000000/g' backend/.env.docker
+          # Disable blockchain polling in CI to avoid external RPC dependency / rate limits
+          sed -i '/^ETH_RPC_URL=/d' backend/.env.docker
           
           # Analytics .env
           cp analytics/.env.example analytics/.env
@@ -64,13 +66,17 @@ jobs:
           pwd
           ls -la backend/Dockerfile analytics/Dockerfile
           docker compose up -d --build backend analytics-worker analytics-beat
-      - name: Wait for Postgres and create pgcrypto extension
+      - name: Wait for Postgres and create required extensions
         run: |
           ATTEMPTS=30
           until docker compose exec -T postgres pg_isready -U admin -d creator_split_db >/dev/null 2>&1 || [ $ATTEMPTS -eq 0 ]; do
             echo "Waiting for Postgres... ($ATTEMPTS)"; ATTEMPTS=$((ATTEMPTS-1)); sleep 5;
           done
+          docker compose exec -T postgres psql -U admin -d creator_split_db -c "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";"
           docker compose exec -T postgres psql -U admin -d creator_split_db -c "CREATE EXTENSION IF NOT EXISTS pgcrypto;"
+      - name: Run DB migrations
+        run: |
+          docker compose exec -T backend npm run typeorm:migrate:run
       - name: Wait for backend health
         run: |
           ATTEMPTS=30
