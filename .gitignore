@@ -56,7 +56,6 @@ docker-compose.override.yml
 docker-compose.*.yml
 # Allow prod compose in repo
 !docker-compose.prod.yml
-**/Dockerfile
 
 # Python
 __pycache__/
