@@ -120,16 +120,4 @@ export class WebhooksService {
       throw error; // Re-throw so Nest returns 500 with actual error
     }
   }
-
-    this.logger.log(
-      `Analytics anomaly saved: ${anomaly.id} (${severity}) - ${dto.txHash}`
-    );
-
-    return {
-      success: true,
-      anomalyId: anomaly.id,
-      message: "Analytics anomaly recorded successfully",
-      severity,
-    };
-  }
 }
