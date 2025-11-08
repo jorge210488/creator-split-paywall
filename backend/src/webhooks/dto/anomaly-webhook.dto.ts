@@ -10,6 +10,12 @@ import {
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { AnomalyType, AnomalySeverity } from "../../entities/anomaly.entity";
 
+export enum DetectionRule {
+  IQR = "IQR",
+  ZSCORE = "ZSCORE",
+  ISOLATION_FOREST = "ISOLATION_FOREST",
+}
+
 export class AnomalyWebhookDto {
   @ApiProperty({ enum: AnomalyType, description: "Type of anomaly detected" })
   @IsEnum(AnomalyType)
@@ -67,11 +73,10 @@ export class AnalyticsAnomalyWebhookDto {
 
   @ApiProperty({
     description: "Detection rule used",
-    enum: ["IQR", "ZSCORE", "ISOLATION_FOREST"],
+    enum: DetectionRule,
   })
-  @IsString()
-  @IsNotEmpty()
-  rule: string;
+  @IsEnum(DetectionRule)
+  rule: DetectionRule;
 
   @ApiProperty({ description: "Anomaly score" })
   @IsNumber()
