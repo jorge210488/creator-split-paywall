@@ -6,7 +6,7 @@
 set -e
 
 BACKEND_BASE_URL="${1:-http://localhost:3000}"
-TOKEN="${ANALYTICS_WEBHOOK_TOKEN:-super-secret}"
+TOKEN="${ANALYTICS_WEBHOOK_TOKEN:-super-secret-analytics-token-2025}"
 
 echo "== Analytics Anomaly Webhook Contract Test =="
 echo "Backend: $BACKEND_BASE_URL"
@@ -46,8 +46,11 @@ rm /tmp/resp.txt
 echo "Status: $HTTP_CODE"
 echo "Body: $BODY"
 
+# Content assertions (no jq dependency required)
 if [ "$HTTP_CODE" = "201" ] || [ "$HTTP_CODE" = "200" ]; then
-  echo "✅ Webhook accepted"
+  echo "$BODY" | grep -q '"success":true' && echo "✓ success flag present" || { echo "✗ missing success=true"; exit 1; }
+  echo "$BODY" | grep -q 'anomalyId' && echo "✓ anomalyId present" || { echo "✗ missing anomalyId"; exit 1; }
+  echo "✅ Webhook accepted and response content verified"
   exit 0
 else
   echo "❌ Unexpected status code"
