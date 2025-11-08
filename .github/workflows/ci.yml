@@ -59,12 +59,11 @@ jobs:
           cp analytics/.env.example analytics/.env
           sed -i 's/your_password/ci_test_password/g' analytics/.env
           sed -i 's/your-analytics-webhook-token/super-secret-analytics-token-2025/g' analytics/.env
-      - name: Build backend & analytics images
+      - name: Build and start backend & analytics via docker compose
         run: |
-          docker compose build backend analytics-worker analytics-beat
-      - name: Start backend & analytics via docker compose
-        run: |
-          docker compose up -d backend analytics-worker analytics-beat
+          pwd
+          ls -la backend/Dockerfile analytics/Dockerfile
+          docker compose up -d --build backend analytics-worker analytics-beat
       - name: Wait for Postgres and create pgcrypto extension
         run: |
           ATTEMPTS=30
