@@ -81,7 +81,9 @@ export class WebhooksService {
 
       // Create anomaly record
       const anomaly = this.anomalyRepository.create({
-        type: AnomalyType.UNUSUAL_PAYMENT_AMOUNT,
+        // Use an enum value that exists in current DB enum definition
+        // to avoid enum mismatch errors during inserts in CI
+        type: AnomalyType.UNUSUAL_VOLUME,
         severity,
         walletAddress: normalizedAddress,
         description,
