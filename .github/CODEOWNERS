@@ -1,0 +1,39 @@
+# CODEOWNERS - Define reviewers for specific parts of the codebase
+
+# More info: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global owners (fallback)
+
+- @jorge210488
+
+# Smart Contracts
+
+/contracts/ @jorge210488
+/contracts/contracts/\*.sol @jorge210488
+/contracts/test/ @jorge210488
+
+# Backend
+
+/backend/ @jorge210488
+/backend/src/ @jorge210488
+/backend/test/ @jorge210488
+
+# Analytics
+
+/analytics/ @jorge210488
+
+# Infrastructure & DevOps
+
+/docker-compose\*.yml @jorge210488
+/.github/ @jorge210488
+/scripts/ @jorge210488
+/infra/ @jorge210488
+
+# E2E Tests
+
+/test-e2e/ @jorge210488
+
+# Documentation
+
+\*.md @jorge210488
+/docs/ @jorge210488

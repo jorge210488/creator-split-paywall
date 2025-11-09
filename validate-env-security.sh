@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Script de validación de seguridad para variables de entorno
-# Ejecutar antes de hacer commit para verificar que no se filtren secretos
+# Security validation script for environment variables
+# Run before committing to verify no secrets are leaked
 
 set -e
 
@@ -18,7 +18,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Test 1: Verificar que .env files NO están en git status
+# Test 1: Check .env files are not tracked by git
 echo "📋 Test 1: Checking .env files are not tracked by git..."
 if git status --short | grep -E "\.env$|\.env\.docker$" > /dev/null; then
     echo -e "${RED}❌ FAIL: .env files found in git status!${NC}"
@@ -29,7 +29,7 @@ else
 fi
 echo ""
 
-# Test 2: Verificar que .gitignore funciona
+# Test 2: Check .gitignore is working
 echo "📋 Test 2: Checking .gitignore is working..."
 IGNORED_FILES=(
     "backend/.env"
@@ -47,7 +47,7 @@ for file in "${IGNORED_FILES[@]}"; do
 done
 echo ""
 
-# Test 3: Buscar secretos reales en archivos .example
+# Test 3: Search for real secrets in .example files
 echo "📋 Test 3: Checking for real secrets in .example files..."
 REAL_SECRETS=(
     "18034783"
@@ -70,7 +70,7 @@ else
 fi
 echo ""
 
-# Test 4: Verificar que archivos .example están en stage (si se modificaron)
+# Test 4: Check .example files are staged (if modified)
 echo "📋 Test 4: Checking .example files are ready to commit..."
 if git diff --cached --name-only | grep "\.env\.example$" > /dev/null; then
     echo -e "${GREEN}✅ .example files are staged for commit${NC}"
@@ -81,7 +81,7 @@ else
 fi
 echo ""
 
-# Test 5: Verificar estructura de dockerignore
+# Test 5: Check .dockerignore file structure
 echo "📋 Test 5: Checking .dockerignore files exist..."
 DOCKERIGNORE_FILES=(
     "backend/.dockerignore"
@@ -97,7 +97,7 @@ for file in "${DOCKERIGNORE_FILES[@]}"; do
 done
 echo ""
 
-# Test 6: Verificar sincronización de tokens
+# Test 6: Check token synchronization
 echo "📋 Test 6: Checking token synchronization..."
 BACKEND_TOKEN=$(grep "ANALYTICS_WEBHOOK_TOKEN=" backend/.env.docker 2>/dev/null | cut -d= -f2)
 ANALYTICS_TOKEN=$(grep "ANALYTICS_WEBHOOK_TOKEN=" analytics/.env 2>/dev/null | cut -d= -f2)

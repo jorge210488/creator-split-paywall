@@ -1,0 +1,92 @@
+version: 2
+updates:
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    commit-message:
+      prefix: "ci"
+    labels:
+      - "dependencies"
+      - "github-actions"
+
+  # Smart Contracts (npm)
+  - package-ecosystem: "npm"
+    directory: "/contracts"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    commit-message:
+      prefix: "deps(contracts)"
+    labels:
+      - "dependencies"
+      - "contracts"
+    versioning-strategy: increase
+    open-pull-requests-limit: 5
+
+  # Backend (npm)
+  - package-ecosystem: "npm"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    commit-message:
+      prefix: "deps(backend)"
+    labels:
+      - "dependencies"
+      - "backend"
+    versioning-strategy: increase
+    open-pull-requests-limit: 5
+
+  # E2E Tests (npm)
+  - package-ecosystem: "npm"
+    directory: "/test-e2e"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    commit-message:
+      prefix: "deps(e2e)"
+    labels:
+      - "dependencies"
+      - "testing"
+    versioning-strategy: increase
+    open-pull-requests-limit: 5
+
+  # Analytics (pip)
+  - package-ecosystem: "pip"
+    directory: "/analytics"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    commit-message:
+      prefix: "deps(analytics)"
+    labels:
+      - "dependencies"
+      - "analytics"
+    versioning-strategy: increase
+    open-pull-requests-limit: 5
+
+  # Docker
+  - package-ecosystem: "docker"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    commit-message:
+      prefix: "deps(docker)"
+    labels:
+      - "dependencies"
+      - "docker"
+
+  - package-ecosystem: "docker"
+    directory: "/analytics"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    commit-message:
+      prefix: "deps(docker)"
+    labels:
+      - "dependencies"
+      - "docker"

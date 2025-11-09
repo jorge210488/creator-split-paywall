@@ -1,5 +1,10 @@
 # Creator Split Paywall
 
+[![CI](https://github.com/jorge210488/creator-split-paywall/actions/workflows/ci.yml/badge.svg)](https://github.com/jorge210488/creator-split-paywall/actions/workflows/ci.yml)
+[![Deploy Sepolia](https://github.com/jorge210488/creator-split-paywall/actions/workflows/deploy-sepolia.yml/badge.svg)](https://github.com/jorge210488/creator-split-paywall/actions/workflows/deploy-sepolia.yml)
+[![Release](https://img.shields.io/github/v/release/jorge210488/creator-split-paywall?label=release)](https://github.com/jorge210488/creator-split-paywall/releases)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+
 A decentralized paywall system that allows content creators to split their earnings automatically using smart contracts.
 
 ## Project Structure

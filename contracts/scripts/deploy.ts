@@ -16,7 +16,7 @@ async function main() {
   const payees = [
     owner, // Owner
     "0x5eea7805e1920ed024dba8fc8c65a1fda2411feb",
-    "0x5abd95f58fa6a814a87527cdf34f279575d18d4a"
+    "0x5abd95f58fa6a814a87527cdf34f279575d18d4a",
   ];
   const shares = [1, 1, 1]; // Equal shares
   const price = ethers.parseEther("0.001"); // 0.001 ETH

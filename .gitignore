@@ -120,6 +120,12 @@ secrets.json
 # Misc
 *.retry
 
+# Backups (Postgres dumps)
+infra/backups/*.sql
+infra/backups/*.sql.gz
+# Allow backup directory README
+!infra/backups/README.md
+
 # Allow these
 !README.md
 !**/README.md

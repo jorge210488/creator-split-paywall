@@ -18,7 +18,9 @@ async function main() {
   console.log("\nSepolia Faucets:");
   console.log("- https://sepoliafaucet.com/");
   console.log("- https://www.alchemy.com/faucets/ethereum-sepolia");
-  console.log("- https://cloud.google.com/application/web3/faucet/ethereum/sepolia");
+  console.log(
+    "- https://cloud.google.com/application/web3/faucet/ethereum/sepolia"
+  );
 }
 
 if (require.main === module) {

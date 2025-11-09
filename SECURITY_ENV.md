@@ -2,101 +2,101 @@
 
 ## 📋 Overview
 
-Este proyecto usa múltiples archivos `.env` para diferentes contextos. **NUNCA** commitees archivos `.env` reales al repositorio.
+This project uses multiple `.env` files for different contexts. **NEVER** commit real `.env` files to the repository.
 
-## 📁 Archivos de Entorno
+## 📁 Environment Files
 
 ### Root Level
 
-- `.env` - Variables compartidas para Docker Compose (postgres, redis) ❌ NEVER COMMIT
-- `.env.example` - Template público sin valores reales ✅ Safe to commit
+- `.env` - Shared variables for Docker Compose (postgres, redis) ❌ NEVER COMMIT
+- `.env.example` - Public template without real values ✅ Safe to commit
 
 ### Backend
 
-- `backend/.env` - Desarrollo local ❌ NEVER COMMIT
-- `backend/.env.docker` - Producción en Docker ❌ NEVER COMMIT
-- `backend/.env.example` - Template para desarrollo ✅ Safe to commit
-- `backend/.env.prod.example` - Template para producción ✅ Safe to commit
+- `backend/.env` - Local development ❌ NEVER COMMIT
+- `backend/.env.docker` - Production in Docker ❌ NEVER COMMIT
+- `backend/.env.example` - Development template ✅ Safe to commit
+- `backend/.env.prod.example` - Production template ✅ Safe to commit
 
 ### Analytics
 
-- `analytics/.env` - Variables del servicio analytics ❌ NEVER COMMIT
-- `analytics/.env.example` - Template público ✅ Safe to commit
+- `analytics/.env` - Analytics service variables ❌ NEVER COMMIT
+- `analytics/.env.example` - Public template ✅ Safe to commit
 
-## 🔒 Variables Sensibles (NUNCA en .example)
+## 🔒 Sensitive Variables (NEVER in .example)
 
-### Credenciales de Base de Datos
+### Database Credentials
 
-- `POSTGRES_PASSWORD` - Contraseña de PostgreSQL
-- `DATABASE_URL` - URL completa con credenciales
+- `POSTGRES_PASSWORD` - PostgreSQL password
+- `DATABASE_URL` - Complete URL with credentials
 
 ### Blockchain & Web3
 
-- `PRIVATE_KEY` - Llave privada de wallets
-- `ETH_RPC_URL` - URLs con API keys (Infura/Alchemy)
+- `PRIVATE_KEY` - Wallet private keys
+- `ETH_RPC_URL` - URLs with API keys (Infura/Alchemy)
 
-### Autenticación
+### Authentication
 
-- `JWT_SECRET` - Secreto para tokens JWT
-- `ANALYTICS_WEBHOOK_TOKEN` - Token de autenticación webhooks
+- `JWT_SECRET` - Secret for JWT tokens
+- `ANALYTICS_WEBHOOK_TOKEN` - Webhook authentication token
 
-### Claves de APIs
+### API Keys
 
-- Cualquier API key de servicios externos
+- Any API key from external services
 
-## ✅ Variables No Sensibles (OK en .example)
+## ✅ Non-Sensitive Variables (OK in .example)
 
-- `PORT` - Puertos de servicios
-- `NODE_ENV` - Ambiente (development/production)
-- `CONFIRMATIONS` - Parámetros de configuración
+- `PORT` - Service ports
+- `NODE_ENV` - Environment (development/production)
+- `CONFIRMATIONS` - Configuration parameters
 - `THROTTLE_TTL`, `THROTTLE_LIMIT` - Rate limiting configs
-- `SCHEDULE_MINUTES` - Intervalos de tareas
+- `SCHEDULE_MINUTES` - Task intervals
 - Feature flags (`USE_IQR`, `USE_ZSCORE`, etc.)
 
 ## 🚀 Setup Instructions
 
-### Desarrollo Local
+### Local Development
 
 1. **Backend**
 
 ```bash
 cp backend/.env.example backend/.env
-# Edita backend/.env con tus valores reales
+# Edit backend/.env with your real values
 ```
 
 2. **Analytics**
 
 ```bash
 cp analytics/.env.example analytics/.env
-# Edita analytics/.env con tus valores reales
+# Edit analytics/.env with your real values
 ```
 
 3. **Root**
 
 ```bash
 cp .env.example .env
-# Edita .env con credenciales de postgres
+# Edit .env with postgres credentials
 ```
 
-### Producción (Docker)
+### Production (Docker)
 
 1. **Backend Docker**
 
 ```bash
 cp backend/.env.prod.example backend/.env.docker
-# Edita backend/.env.docker con valores de producción
-# IMPORTANTE: Usa contraseñas fuertes diferentes a desarrollo
+# Edit backend/.env.docker with production values
+# IMPORTANT: Use strong passwords different from development
 ```
 
-2. **Sincroniza Tokens**
-   Asegúrate que estos valores coincidan:
+2. **Synchronize Tokens**
+   Make sure these values match:
 
-- `ANALYTICS_WEBHOOK_TOKEN` en `backend/.env.docker`
-- `ANALYTICS_WEBHOOK_TOKEN` en `analytics/.env`
+- `ANALYTICS_WEBHOOK_TOKEN` in `backend/.env.docker`
+- `ANALYTICS_WEBHOOK_TOKEN` in `analytics/.env`
 
-## 🛡️ Protección con .gitignore
+## 🛡️ Protection with .gitignore
 
-El `.gitignore` está configurado para **NUNCA** commitear:
+The `.gitignore` is configured to **NEVER** commit:
 
 ```
 .env
@@ -109,7 +109,7 @@ El `.gitignore` está configurado para **NUNCA** commitear:
 **/.env.docker
 ```
 
-Pero **SÍ** permite:
+But **DOES** allow:
 
 ```
 !.env.example
@@ -118,9 +118,9 @@ Pero **SÍ** permite:
 !**/.env.prod.example
 ```
 
-## 🐳 Protección con .dockerignore
+## 🐳 Protection with .dockerignore
 
-Cada servicio tiene `.dockerignore` para excluir secretos del contexto de build:
+Each service has `.dockerignore` to exclude secrets from build context:
 
 ```
 .env
@@ -132,49 +132,49 @@ Cada servicio tiene `.dockerignore` para excluir secretos del contexto de build:
 secrets.json
 ```
 
-## ⚠️ Checklist de Seguridad
+## ⚠️ Security Checklist
 
-Antes de hacer commit:
+Before committing:
 
-- [ ] Verifica que NO hay archivos `.env` reales en stage
+- [ ] Verify there are NO real `.env` files in stage
 
   ```bash
   git status | grep "\.env"
   ```
 
-- [ ] Confirma que `.env.example` NO tiene valores reales
+- [ ] Confirm that `.env.example` does NOT have real values
 
   ```bash
-  # Busca passwords, API keys, tokens reales
+  # Search for passwords, API keys, real tokens
   grep -r "18034783\|super-secret\|0x04a7912" backend/.env.example analytics/.env.example .env.example
-  # Este comando NO debe retornar nada
+  # This command should return nothing
   ```
 
-- [ ] Verifica que `.gitignore` está funcionando
+- [ ] Verify that `.gitignore` is working
   ```bash
   git check-ignore backend/.env analytics/.env .env
-  # Debe retornar los 3 archivos
+  # Should return all 3 files
   ```
 
-## 🔄 Rotación de Secretos
+## 🔄 Secret Rotation
 
-Si accidentalmente commiteas un secreto:
+If you accidentally commit a secret:
 
-1. **Inmediatamente** rota el secreto (cambia contraseñas, regenera tokens)
-2. Usa `git filter-branch` o BFG Repo-Cleaner para remover del historial
-3. Force push después de limpiar historial
-4. Notifica al equipo para que hagan `git pull --force`
+1. **Immediately** rotate the secret (change passwords, regenerate tokens)
+2. Use `git filter-branch` or BFG Repo-Cleaner to remove from history
+3. Force push after cleaning history
+4. Notify the team to do `git pull --force`
 
-## 📞 Soporte
+## 📞 Support
 
-Si tienes dudas sobre qué commitear o no:
+If you have doubts about what to commit or not:
 
-- ✅ Valores de ejemplo como `your_password`, `CHANGE_ME`
-- ✅ Configuración numérica (puertos, timeouts, thresholds)
-- ✅ Feature flags booleanas
-- ❌ API keys reales
-- ❌ Contraseñas reales
+- ✅ Example values like `your_password`, `CHANGE_ME`
+- ✅ Numeric configuration (ports, timeouts, thresholds)
+- ✅ Boolean feature flags
+- ❌ Real API keys
+- ❌ Real passwords
 - ❌ Private keys
-- ❌ Tokens de autenticación
+- ❌ Authentication tokens
 
-**Regla de oro**: Si no estás 100% seguro, NO lo commitees.
+**Golden rule**: If you're not 100% sure, DON'T commit it.
