@@ -1,8 +1,8 @@
 # Dependabot Configuration
 # 
-# 🔴 CURRENTLY DISABLED (open-pull-requests-limit: 0)
+# ✅ CURRENTLY ENABLED (open-pull-requests-limit: 5)
 # 
-# To ENABLE: Change `open-pull-requests-limit: 0` to `open-pull-requests-limit: 3`
+# To ENABLE: Change `open-pull-requests-limit: 0` to `open-pull-requests-limit: 5`
 # To DISABLE: Change back to 0
 #
 # Configuration prevents major version updates to avoid breaking changes in production
@@ -20,7 +20,7 @@ updates:
     labels:
       - "dependencies"
       - "github-actions"
-    open-pull-requests-limit: 0  # ← SET TO 3 TO ENABLE
+    open-pull-requests-limit: 5  # ← SET TO 0 TO DISABLE
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]  # Ignore major updates
@@ -37,7 +37,7 @@ updates:
       - "dependencies"
       - "contracts"
     versioning-strategy: increase-if-necessary
-    open-pull-requests-limit: 0  # ← SET TO 3 TO ENABLE
+    open-pull-requests-limit: 5  # ← SET TO 0 TO DISABLE
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]  # Ignore major updates
@@ -54,7 +54,7 @@ updates:
       - "dependencies"
       - "backend"
     versioning-strategy: increase-if-necessary
-    open-pull-requests-limit: 0  # ← SET TO 3 TO ENABLE
+    open-pull-requests-limit: 5  # ← SET TO 0 TO DISABLE
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]  # Ignore major updates
@@ -71,7 +71,7 @@ updates:
       - "dependencies"
       - "testing"
     versioning-strategy: increase-if-necessary
-    open-pull-requests-limit: 0  # ← SET TO 3 TO ENABLE
+    open-pull-requests-limit: 5  # ← SET TO 0 TO DISABLE
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]  # Ignore major updates
@@ -88,7 +88,7 @@ updates:
       - "dependencies"
       - "analytics"
     versioning-strategy: increase-if-necessary
-    open-pull-requests-limit: 0  # ← SET TO 3 TO ENABLE
+    open-pull-requests-limit: 5  # ← SET TO 0 TO DISABLE
 
   # Docker - Only patch/minor updates
   - package-ecosystem: "docker"
@@ -101,7 +101,7 @@ updates:
     labels:
       - "dependencies"
       - "docker"
-    open-pull-requests-limit: 0  # ← SET TO 3 TO ENABLE
+    open-pull-requests-limit: 5  # ← SET TO 0 TO DISABLE
 
   - package-ecosystem: "docker"
     directory: "/analytics"
@@ -113,4 +113,4 @@ updates:
     labels:
       - "dependencies"
       - "docker"
-    open-pull-requests-limit: 0  # ← SET TO 3 TO ENABLE
+    open-pull-requests-limit: 5  # ← SET TO 0 TO DISABLE
