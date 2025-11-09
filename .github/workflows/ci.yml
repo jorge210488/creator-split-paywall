@@ -107,7 +107,7 @@ jobs:
           docker compose logs analytics-worker > analytics-worker.log || true
       - name: Upload logs artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: service-logs
           path: |
