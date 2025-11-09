@@ -1,9 +1,11 @@
 # Runbook: Local Environment Reset
 
 ## Goal
+
 Return local environment to a clean baseline (DB, Redis, artifacts).
 
 ## Steps
+
 1. Stop all services: `docker-compose down`.
 2. Remove volumes (CAUTION – data loss):
    ```bash
@@ -23,6 +25,7 @@ Return local environment to a clean baseline (DB, Redis, artifacts).
 7. (Optional) Re-run E2E: `bash scripts/test-all.sh http://localhost:3000`.
 
 ## Verification
+
 - Backend `/health` returns 200
 - Contract events ingest from expected start block
 - Analytics begins scheduled anomaly scans
