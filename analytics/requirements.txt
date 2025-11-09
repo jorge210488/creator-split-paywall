@@ -1,6 +1,6 @@
 celery==5.3.1
 redis==4.5.5
-numpy==1.24.3
+numpy==2.3.4
 pandas==2.0.2
 scikit-learn==1.2.2
 python-dotenv==1.0.0
