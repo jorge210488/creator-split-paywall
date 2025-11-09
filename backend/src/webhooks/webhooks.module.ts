@@ -7,10 +7,7 @@ import { Anomaly } from "../entities/anomaly.entity";
 import { Wallet } from "../entities/wallet.entity";
 
 @Module({
-  imports: [
-    DatabaseModule,
-    TypeOrmModule.forFeature([Anomaly, Wallet]),
-  ],
+  imports: [DatabaseModule, TypeOrmModule.forFeature([Anomaly, Wallet])],
   providers: [WebhooksService],
   controllers: [WebhooksController],
 })

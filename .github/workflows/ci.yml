@@ -46,7 +46,7 @@ jobs:
           sed -i 's/your_infura_key/dummy_infura_key/g' .env
           sed -i 's/your_private_key/0x0000000000000000000000000000000000000000000000000000000000000001/g' .env
           sed -i 's/your_jwt_secret/ci_test_jwt_secret/g' .env
-          
+
           # Backend .env.docker
           cp backend/.env.prod.example backend/.env.docker
           sed -i 's/CHANGE_ME/ci_test_password/g' backend/.env.docker
@@ -56,7 +56,7 @@ jobs:
           sed -i 's/0x\.\.\./0x0000000000000000000000000000000000000000/g' backend/.env.docker
           # Disable blockchain polling in CI to avoid external RPC dependency / rate limits
           sed -i '/^ETH_RPC_URL=/d' backend/.env.docker
-          
+
           # Analytics .env
           cp analytics/.env.example analytics/.env
           sed -i 's/your_password/ci_test_password/g' analytics/.env

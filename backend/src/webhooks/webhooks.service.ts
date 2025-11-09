@@ -137,7 +137,7 @@ export class WebhooksService {
 
     return {
       count: anomalies.length,
-      anomalies: anomalies.map(a => ({
+      anomalies: anomalies.map((a) => ({
         id: a.id,
         type: a.type,
         severity: a.severity,
