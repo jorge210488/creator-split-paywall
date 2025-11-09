@@ -1,11 +1,13 @@
 import {
   Controller,
   Post,
+  Get,
+  Query,
   Body,
   Headers,
   UnauthorizedException,
 } from "@nestjs/common";
-import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from "@nestjs/swagger";
+import { ApiTags, ApiOperation, ApiResponse, ApiHeader, ApiQuery } from "@nestjs/swagger";
 import { WebhooksService } from "./webhooks.service";
 import {
   AnomalyWebhookDto,
@@ -44,5 +46,19 @@ export class WebhooksController {
     }
 
     return this.webhooksService.handleAnalyticsAnomaly(dto);
+  }
+
+  @Get("anomalies")
+  @ApiOperation({ summary: "List recent anomalies (for testing/monitoring)" })
+  @ApiQuery({ name: "limit", required: false, type: Number, description: "Max results (default 10)" })
+  @ApiQuery({ name: "resolved", required: false, type: Boolean, description: "Filter by resolved status" })
+  @ApiResponse({ status: 200, description: "List of anomalies" })
+  async listAnomalies(
+    @Query("limit") limit?: string,
+    @Query("resolved") resolved?: string
+  ) {
+    const parsedLimit = limit ? parseInt(limit, 10) : 10;
+    const parsedResolved = resolved === "true" ? true : resolved === "false" ? false : undefined;
+    return this.webhooksService.listAnomalies(parsedLimit, parsedResolved);
   }
 }

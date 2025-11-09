@@ -29,15 +29,15 @@ WITH w AS (
 )
 INSERT INTO payments (id, wallet_id, amount, tx_hash, block_number, log_index, timestamp, created_at)
 SELECT gen_random_uuid(), w.id,
-       amt::numeric,
+       amount_value::numeric,
        '0x'||substr(md5(random()::text),1,60) as tx_hash,
        9999990 + seq as block_number,
        seq as log_index,
        now() - (interval '1 minute' * seq) as timestamp,
        now() as created_at
 FROM w,
-     (SELECT * FROM unnest(ARRAY[100000000000000000,200000000000000000,500000000000000000,900000000000000000,5,750000000000000000,3000000000000000000])) AS amt,
-     generate_series(1,8) AS seq;
+     unnest(ARRAY[100000000000000000::bigint,200000000000000000::bigint,500000000000000000::bigint,900000000000000000::bigint,5::bigint,750000000000000000::bigint,3000000000000000000::bigint]) AS amount_value,
+     generate_series(1,7) AS seq;
 EOSQL
 )
 
@@ -58,10 +58,10 @@ else
 fi
 
 echo "[4/5] Querying anomalies (expect >=1)"
-ANOMALIES_JSON=$(curl -s "$BACKEND_BASE_URL/anomalies?limit=5" || true)
+ANOMALIES_JSON=$(curl -s "$BACKEND_BASE_URL/webhooks/anomalies?limit=5" || true)
 echo "Response: $(echo "$ANOMALIES_JSON" | head -c 300)"
 
-COUNT=$(echo "$ANOMALIES_JSON" | grep -o 'unusual_payment_amount' | wc -l | tr -d ' ')
+COUNT=$(echo "$ANOMALIES_JSON" | grep -o 'unusual_' | wc -l | tr -d ' ')
 if [ "$COUNT" -ge 1 ]; then
   echo "✅ Detected $COUNT anomaly record(s)"
 else

@@ -122,4 +122,32 @@ export class WebhooksService {
       throw error; // Re-throw so Nest returns 500 with actual error
     }
   }
+
+  async listAnomalies(limit: number = 10, resolved?: boolean) {
+    const queryBuilder = this.anomalyRepository
+      .createQueryBuilder("anomaly")
+      .orderBy("anomaly.detected_at", "DESC")
+      .take(limit);
+
+    if (resolved !== undefined) {
+      queryBuilder.where("anomaly.resolved = :resolved", { resolved });
+    }
+
+    const anomalies = await queryBuilder.getMany();
+
+    return {
+      count: anomalies.length,
+      anomalies: anomalies.map(a => ({
+        id: a.id,
+        type: a.type,
+        severity: a.severity,
+        walletAddress: a.walletAddress,
+        description: a.description,
+        resolved: a.resolved,
+        detectedAt: a.detectedAt,
+        resolvedAt: a.resolvedAt,
+        metadata: a.metadata,
+      })),
+    };
+  }
 }
