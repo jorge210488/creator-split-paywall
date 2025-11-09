@@ -4,7 +4,7 @@ const { ethers, upgrades } = require("hardhat");
 describe("SubscriptionSplitPaywall", function () {
   let owner, alice, bob, payee1, payee2;
   let sub;
-  const price = ethers.parseEther("0.1"); // 0.1 ETH
+  const price = ethers.parseEther("0.001"); // 0.001 ETH (updated to match deployment)
   const duration = 3600; // 1 hour
 
   beforeEach(async function () {
@@ -27,7 +27,7 @@ describe("SubscriptionSplitPaywall", function () {
 
   it("reverts when insufficient payment is sent", async function () {
     await expect(
-      sub.connect(alice).subscribe({ value: ethers.parseEther("0.01") })
+      sub.connect(alice).subscribe({ value: ethers.parseEther("0.0001") })
     ).to.be.revertedWithCustomError(sub, "InsufficientPayment");
   });
 
@@ -99,7 +99,7 @@ describe("SubscriptionSplitPaywall", function () {
   });
 
   it("allows owner to update price and duration and rejects non-owner", async function () {
-    const newPrice = ethers.parseEther("0.2");
+    const newPrice = ethers.parseEther("0.002");
     await expect(sub.connect(owner).setSubscriptionPrice(newPrice))
       .to.emit(sub, "PriceUpdated")
       .withArgs(price, newPrice);

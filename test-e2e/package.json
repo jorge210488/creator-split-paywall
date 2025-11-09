@@ -1,0 +1,30 @@
+{
+  "name": "creator-split-paywall-e2e-tests",
+  "version": "1.0.0",
+  "description": "End-to-end test suite for Creator Split Paywall on Sepolia",
+  "main": "index.js",
+  "scripts": {
+    "test": "ts-node scripts/run-e2e.ts",
+    "test:single": "ts-node scripts/test-single-period.ts",
+    "test:multiple": "ts-node scripts/test-multiple-periods.ts",
+    "test:anomaly": "ts-node scripts/test-anomaly-detection.ts",
+    "test:resilience": "ts-node scripts/test-resilience.ts",
+    "subscribe": "ts-node scripts/subscribe.ts",
+    "release": "ts-node scripts/release-payees.ts",
+    "seed": "ts-node scripts/seed-config.ts",
+    "reset": "ts-node scripts/reset-state.ts",
+    "generate-wallet": "ts-node scripts/generate-wallet.ts",
+    "check": "ts-node scripts/check-subscription.ts"
+  },
+  "dependencies": {
+    "ethers": "^6.15.0",
+    "axios": "^1.7.2",
+    "dotenv": "^16.4.5",
+    "redis": "^4.6.13"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

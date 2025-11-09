@@ -22,14 +22,19 @@ package-lock.json
 yarn.lock
 .pnpm-debug.log
 pnpm-lock.yaml
+test-e2e/node_modules/
 
 # TypeScript
 dist/
 build/
 *.tsbuildinfo
+test-e2e/*.log
+test-e2e/reports/*.log
 # Compiled files in wrong locations (should be in dist/)
 backend/*.js
 backend/*.d.ts
+test-e2e/reports/*.md
+!test-e2e/reports/.gitkeep
 backend/*.js.map
 !backend/ormconfig.js
 !backend/entrypoint.sh
@@ -45,6 +50,8 @@ coverage/
 # OpenZeppelin upgrades
 .upgrades.json
 
+test-e2e/.env
+test-e2e/.env.*
 # NestJS
 dist/
 .env

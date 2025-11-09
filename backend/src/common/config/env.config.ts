@@ -9,6 +9,7 @@ export const envConfig = () => ({
   },
   blockchain: {
     rpcUrl: process.env.ETH_RPC_URL,
+    rpcUrlFallback: process.env.ETH_RPC_URL_FALLBACK,
     contractAddress: process.env.CONTRACT_ADDRESS,
     contractNetwork: process.env.CONTRACT_NETWORK || "sepolia",
     startBlock: process.env.CONTRACT_START_BLOCK

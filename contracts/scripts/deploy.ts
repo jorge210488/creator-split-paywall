@@ -11,11 +11,23 @@ async function main() {
     "SubscriptionSplitPaywall"
   );
 
-  // Example default args; change when deploying for real
-  const payees = [deployer.address];
-  const shares = [1];
-  const price = ethers.parseEther("0.1");
+  // New configuration
+  const owner = "0xbddb6c4fc08af549d13a33455374e7ffbfd7fa70";
+  const payees = [
+    owner, // Owner
+    "0x5eea7805e1920ed024dba8fc8c65a1fda2411feb",
+    "0x5abd95f58fa6a814a87527cdf34f279575d18d4a"
+  ];
+  const shares = [1, 1, 1]; // Equal shares
+  const price = ethers.parseEther("0.001"); // 0.001 ETH
   const duration = 30 * 24 * 3600; // 30 days
+
+  console.log("Configuration:");
+  console.log("  Owner:", owner);
+  console.log("  Price:", ethers.formatEther(price), "ETH");
+  console.log("  Duration:", duration / 86400, "days");
+  console.log("  Payees:", payees.length);
+  console.log("");
 
   console.log("Deploying UUPS proxy...");
   const proxy = await upgrades.deployProxy(

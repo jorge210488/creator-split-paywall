@@ -24,7 +24,7 @@ import { BlockchainStatusDto } from "./dto/blockchain-status.dto";
 @Injectable()
 export class BlockchainService implements OnModuleInit {
   private readonly logger = new Logger(BlockchainService.name);
-  private provider: ethers.JsonRpcProvider;
+  private provider: ethers.Provider;
   private contract: ethers.Contract;
   private contractEntity: Contract;
   private isProcessing = false;
@@ -82,8 +82,17 @@ export class BlockchainService implements OnModuleInit {
 
       this.logger.log(`Initializing blockchain service for ${network}...`);
 
-      // Connect to provider
-      this.provider = new ethers.JsonRpcProvider(rpcUrl);
+      // Connect to provider (with optional fallback)
+      const fallbackUrl = this.configService.get<string>("blockchain.rpcUrlFallback");
+      if (fallbackUrl && fallbackUrl !== rpcUrl) {
+        this.logger.log(`Using primary RPC and fallback provider`);
+        this.provider = new ethers.FallbackProvider([
+          new ethers.JsonRpcProvider(rpcUrl),
+          new ethers.JsonRpcProvider(fallbackUrl),
+        ]);
+      } else {
+        this.provider = new ethers.JsonRpcProvider(rpcUrl);
+      }
 
       // Initialize contract
       this.contract = new ethers.Contract(

@@ -160,8 +160,8 @@ ALTER TABLE payouts ADD COLUMN log_index integer NOT NULL DEFAULT 0;
 ### Environment Variables (.env.docker)
 
 ```bash
-ETH_RPC_URL=https://sepolia.infura.io/v3/49e9f9b154dd406397b14aca8c93544c
-CONTRACT_ADDRESS=0xBcE442C1930e55fF097E3B5F8b1B372872925067
+ETH_RPC_URL=https://sepolia.infura.io/v3/YOUR_INFURA_PROJECT_ID
+CONTRACT_ADDRESS=0xYourContractAddress
 CONTRACT_NETWORK=sepolia
 CONFIRMATIONS=3
 ```
