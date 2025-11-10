@@ -1,7 +1,7 @@
 # Dependabot Configuration
-# 
+#
 # ✅ CURRENTLY ENABLED (open-pull-requests-limit: 5)
-# 
+#
 # To ENABLE: Change `open-pull-requests-limit: 0` to `open-pull-requests-limit: 5`
 # To DISABLE: Change back to 0
 #
@@ -20,10 +20,10 @@ updates:
     labels:
       - "dependencies"
       - "github-actions"
-    open-pull-requests-limit: 5  # ← SET TO 0 TO DISABLE
+    open-pull-requests-limit: 5 # ← SET TO 0 TO DISABLE
     ignore:
       - dependency-name: "*"
-        update-types: ["version-update:semver-major"]  # Ignore major updates
+        update-types: ["version-update:semver-major"] # Ignore major updates
 
   # Smart Contracts (npm) - Only patch/minor updates
   - package-ecosystem: "npm"
@@ -37,10 +37,10 @@ updates:
       - "dependencies"
       - "contracts"
     versioning-strategy: increase-if-necessary
-    open-pull-requests-limit: 5  # ← SET TO 0 TO DISABLE
+    open-pull-requests-limit: 5 # ← SET TO 0 TO DISABLE
     ignore:
       - dependency-name: "*"
-        update-types: ["version-update:semver-major"]  # Ignore major updates
+        update-types: ["version-update:semver-major"] # Ignore major updates
 
   # Backend (npm) - Only patch/minor updates
   - package-ecosystem: "npm"
@@ -54,10 +54,10 @@ updates:
       - "dependencies"
       - "backend"
     versioning-strategy: increase-if-necessary
-    open-pull-requests-limit: 5  # ← SET TO 0 TO DISABLE
+    open-pull-requests-limit: 5 # ← SET TO 0 TO DISABLE
     ignore:
       - dependency-name: "*"
-        update-types: ["version-update:semver-major"]  # Ignore major updates
+        update-types: ["version-update:semver-major"] # Ignore major updates
 
   # E2E Tests (npm) - Only patch/minor updates
   - package-ecosystem: "npm"
@@ -71,10 +71,10 @@ updates:
       - "dependencies"
       - "testing"
     versioning-strategy: increase-if-necessary
-    open-pull-requests-limit: 5  # ← SET TO 0 TO DISABLE
+    open-pull-requests-limit: 5 # ← SET TO 0 TO DISABLE
     ignore:
       - dependency-name: "*"
-        update-types: ["version-update:semver-major"]  # Ignore major updates
+        update-types: ["version-update:semver-major"] # Ignore major updates
 
   # Analytics (pip) - Only patch/minor updates
   - package-ecosystem: "pip"
@@ -88,7 +88,7 @@ updates:
       - "dependencies"
       - "analytics"
     versioning-strategy: increase-if-necessary
-    open-pull-requests-limit: 5  # ← SET TO 0 TO DISABLE
+    open-pull-requests-limit: 5 # ← SET TO 0 TO DISABLE
 
   # Docker - Only patch/minor updates
   - package-ecosystem: "docker"
@@ -101,7 +101,7 @@ updates:
     labels:
       - "dependencies"
       - "docker"
-    open-pull-requests-limit: 5  # ← SET TO 0 TO DISABLE
+    open-pull-requests-limit: 5 # ← SET TO 0 TO DISABLE
 
   - package-ecosystem: "docker"
     directory: "/analytics"
@@ -113,4 +113,4 @@ updates:
     labels:
       - "dependencies"
       - "docker"
-    open-pull-requests-limit: 5  # ← SET TO 0 TO DISABLE
+    open-pull-requests-limit: 5 # ← SET TO 0 TO DISABLE

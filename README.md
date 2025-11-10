@@ -74,18 +74,18 @@ docs/           Project documentation (runbooks, checklists, security)
 
 Documentation index lives in `/docs`:
 
-| File                               | Summary                                                               |
-| ---------------------------------- | --------------------------------------------------------------------- |
-| `docs/SECURITY_ENV.md`             | Environment variable classification & handling guidelines.            |
-| `docs/RUNBOOK_RPC_OUTAGE.md`       | Steps when primary RPC fails; switch fallback / rotate provider key.  |
-| `docs/RUNBOOK_INGESTION_RETRY.md`  | Force re-ingestion of missed on-chain events (block range replay).    |
-| `docs/RUNBOOK_QUEUE_CLEANUP.md`    | Clean Redis/Celery queues & anomaly dedup keys safely.                |
-| `docs/RUNBOOK_ENV_RESET.md`        | Local environment reset (containers, volumes, caches, migrations).    |
-| `docs/CHECKLIST_PRE_RELEASE.md`    | Verification before tagging a release (tests, migrations, gas, diff). |
-| `docs/CHECKLIST_POST_RELEASE.md`   | Post-deploy validation & monitoring handoff.                          |
-| `contracts/README.md`              | Contract architecture, UUPS upgrade flow, ABI regeneration, testing.  |
-| `backend/README.md`                | API surface, ingestion process, configuration, troubleshooting.       |
-| `analytics/README.md`              | Detection pipeline, threshold tuning, scheduling, feature flags.      |
+| File                              | Summary                                                               |
+| --------------------------------- | --------------------------------------------------------------------- |
+| `docs/SECURITY_ENV.md`            | Environment variable classification & handling guidelines.            |
+| `docs/RUNBOOK_RPC_OUTAGE.md`      | Steps when primary RPC fails; switch fallback / rotate provider key.  |
+| `docs/RUNBOOK_INGESTION_RETRY.md` | Force re-ingestion of missed on-chain events (block range replay).    |
+| `docs/RUNBOOK_QUEUE_CLEANUP.md`   | Clean Redis/Celery queues & anomaly dedup keys safely.                |
+| `docs/RUNBOOK_ENV_RESET.md`       | Local environment reset (containers, volumes, caches, migrations).    |
+| `docs/CHECKLIST_PRE_RELEASE.md`   | Verification before tagging a release (tests, migrations, gas, diff). |
+| `docs/CHECKLIST_POST_RELEASE.md`  | Post-deploy validation & monitoring handoff.                          |
+| `contracts/README.md`             | Contract architecture, UUPS upgrade flow, ABI regeneration, testing.  |
+| `backend/README.md`               | API surface, ingestion process, configuration, troubleshooting.       |
+| `analytics/README.md`             | Detection pipeline, threshold tuning, scheduling, feature flags.      |
 
 ---
 
@@ -216,6 +216,164 @@ Or orchestrated:
 ```bash
 bash scripts/test-all.sh http://localhost:3000
 ```
+
+---
+
+## 6a. Exhaustive Test Matrix: Owner, Payees, External Accounts
+
+This section details all recommended manual and automated tests using the three external accounts, owner, and payees. For each scenario, you will find:
+
+- **Accounts Used**: Which wallet(s) to use (owner, payee, external1, external2, external3)
+- **How to Execute**: CLI, API, E2E harness, or frontend (if available)
+- **Where to Observe**: On-chain (Etherscan), backend API, analytics dashboard, logs, Docker containers
+- **Expected Outcome**: What to verify
+- **Troubleshooting**: Common issues and fixes
+
+### Account Setup
+
+- **Owner**: Deployer address (see Sepolia section above)
+- **Payees**: As configured in contract deployment
+- **External Accounts**: Use three funded Sepolia test wallets (can be generated via Hardhat or MetaMask)
+
+### Test Scenarios
+
+#### 1. Subscription Creation (External Accounts)
+
+- **Accounts Used**: external1, external2, external3
+- **How to Execute**:
+  - E2E harness: `bash scripts/test-all.sh http://localhost:3000`
+  - Direct contract call: `npx hardhat run scripts/subscribe.js --network sepolia --account <external>`
+  - API: `POST /subscriptions` (see backend README)
+- **Where to Observe**:
+  - On-chain: Etherscan events for `SubscriptionCreated`
+  - Backend: `/subscriptions` API, database
+  - Analytics: anomaly dashboard (if thresholds exceeded)
+- **Expected Outcome**:
+  - Subscription state updated for each external account
+  - Payment split among payees
+  - Events ingested by backend
+- **Troubleshooting**:
+  - RPC errors: check `ETH_RPC_URL`
+  - Payment failures: ensure sufficient Sepolia ETH
+
+#### 2. Subscription Renewal (External Accounts)
+
+- **Accounts Used**: external1, external2, external3
+- **How to Execute**:
+  - E2E harness or direct contract/API as above
+- **Where to Observe**:
+  - On-chain: `SubscriptionRenewed` event
+  - Backend: `/subscriptions` API
+- **Expected Outcome**:
+  - Expiry extended, payment split
+- **Troubleshooting**:
+  - Already active: renewal should extend, not duplicate
+
+#### 3. Payout Distribution (Payees)
+
+- **Accounts Used**: payee1, payee2, ...
+- **How to Execute**:
+  - Contract call: `withdraw()` from payee account
+  - E2E harness: included in payout tests
+- **Where to Observe**:
+  - On-chain: `Payout` event, payee balances
+  - Backend: payout logs, API
+- **Expected Outcome**:
+  - Payees receive correct split
+- **Troubleshooting**:
+  - No funds: check subscription payments
+
+#### 4. Access Control (Owner vs. External)
+
+- **Accounts Used**: owner, external1, external2, external3
+- **How to Execute**:
+  - Attempt admin-only actions (upgrade, config change) from external accounts
+- **Where to Observe**:
+  - On-chain: failed transaction, revert reason
+- **Expected Outcome**:
+  - Only owner can perform admin actions
+- **Troubleshooting**:
+  - Unexpected access: check contract roles
+
+#### 5. Anomaly Detection (Analytics)
+
+- **Accounts Used**: any (simulate abnormal payments)
+- **How to Execute**:
+  - Send large or unusual payments via contract/API
+  - Adjust thresholds in `analytics/.env`
+- **Where to Observe**:
+  - Analytics dashboard, webhook logs
+  - Backend: anomaly records
+- **Expected Outcome**:
+  - Anomalies detected, webhook sent
+- **Troubleshooting**:
+  - No detection: lower thresholds, check worker logs
+
+#### 6. Edge Cases
+
+- **Accounts Used**: all
+- **How to Execute**:
+  - Expired subscription renewal
+  - Double payment
+  - Withdraw with zero balance
+- **Where to Observe**:
+  - On-chain events, backend API responses
+- **Expected Outcome**:
+  - Graceful handling, no funds lost
+- **Troubleshooting**:
+  - Unexpected errors: check logs, contract revert reasons
+
+#### 7. Upgrade Safety (Owner Only)
+
+- **Accounts Used**: owner
+- **How to Execute**:
+  - Deploy new implementation, upgrade proxy
+- **Where to Observe**:
+  - On-chain: `Upgraded` event
+  - Backend: ABI compatibility
+- **Expected Outcome**:
+  - No storage layout conflicts, system remains functional
+- **Troubleshooting**:
+  - Revert: check OpenZeppelin upgrade guidelines
+
+### How to Run All Tests
+
+**Automated:**
+
+```bash
+bash scripts/test-all.sh http://localhost:3000
+```
+
+This will run all E2E scenarios using the configured accounts. Results are shown in the terminal and can be verified via backend API and contract events.
+
+**Manual:**
+
+- Use Hardhat scripts for contract-level actions
+- Use backend API for subscription/payout/anomaly actions
+- Use analytics dashboard (if available) for anomaly review
+
+### Observing Results
+
+- **On-chain:**
+  - Etherscan (Sepolia): view contract events and balances
+- **Backend:**
+  - API endpoints (see backend README)
+  - Database (Postgres)
+- **Analytics:**
+  - Webhook logs, anomaly dashboard
+- **Docker:**
+  - Container logs for backend, analytics, contracts
+
+### Troubleshooting Common Issues
+
+| Symptom                       | Fix                                                                          |
+| ----------------------------- | ---------------------------------------------------------------------------- |
+| Backend cannot connect to RPC | Ensure `ETH_RPC_URL` reachable; set fallback `ETH_RPC_URL_FALLBACK`.         |
+| Events not ingesting          | Set `CONTRACT_START_BLOCK` or reduce `LOOKBACK_BLOCKS`; check confirmations. |
+| ABI mismatch errors           | Regenerate ABI & restart backend.                                            |
+| Anomaly webhook 401           | Verify `ANALYTICS_WEBHOOK_TOKEN` matches backend env.                        |
+| Upgrade reverted              | Storage layout conflict; review OpenZeppelin upgrade safety guidelines.      |
+| High anomaly noise            | Lower `ANOMALY_DETECTION_THRESHOLD` or disable a rule flag.                  |
 
 ---
 
