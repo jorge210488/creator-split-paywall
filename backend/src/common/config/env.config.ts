@@ -17,6 +17,9 @@ export const envConfig = () => ({
       : null,
     confirmations: parseInt(process.env.CONFIRMATIONS || "3", 10),
     lookbackBlocks: parseInt(process.env.LOOKBACK_BLOCKS || "2000", 10),
+    // Max number of blocks per eth_getLogs call (RPC providers often limit this severely on free tiers)
+    blockQueryChunk: parseInt(process.env.BLOCK_QUERY_CHUNK || "2000", 10),
+    blockQueryDelayMs: parseInt(process.env.BLOCK_QUERY_DELAY_MS || "0", 10),
     pollInterval: parseInt(process.env.POLL_INTERVAL || "15000", 10),
   },
 });

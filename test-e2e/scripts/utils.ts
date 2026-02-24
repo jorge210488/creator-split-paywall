@@ -63,7 +63,6 @@ export function getContractABI(): string[] {
     "function subscriptionDuration() external view returns (uint256)",
     "function setSubscriptionPrice(uint256 newPrice) external",
     "function setSubscriptionDuration(uint256 newDuration) external",
-    "function subscriptions(address) external view returns (uint256 startTime, uint256 endTime)",
     "function subscriptionExpiry(address) external view returns (uint256)",
     "function isActive(address) external view returns (bool)",
     "event SubscriptionStarted(address indexed subscriber, uint256 indexed startTime, uint256 indexed endTime, uint256 amount)",

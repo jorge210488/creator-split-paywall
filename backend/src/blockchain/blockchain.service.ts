@@ -60,7 +60,8 @@ export class BlockchainService implements OnModuleInit {
       .catch((err) => {
         this.logger.error(`Initialization error: ${err.message}`);
       });
-    await this.initPromise;
+    // Don't await - let backfill run in background
+    // This allows the HTTP server to start immediately
   }
 
   private async initialize() {
@@ -109,8 +110,12 @@ export class BlockchainService implements OnModuleInit {
         network
       );
 
-      // Perform initial backfill
-      await this.backfillEvents();
+      // Perform initial backfill in background (don't block HTTP server startup)
+      setImmediate(() => {
+        this.backfillEvents().catch((err) => {
+          this.logger.error(`Backfill error: ${err.message}`, err.stack);
+        });
+      });
 
       // Start polling for new events
       this.startPolling();
@@ -121,6 +126,12 @@ export class BlockchainService implements OnModuleInit {
         `Failed to initialize blockchain service: ${error.message}`,
         error.stack
       );
+    }
+  }
+
+  private async delay(ms: number) {
+    if (ms > 0) {
+      await new Promise((resolve) => setTimeout(resolve, ms));
     }
   }
 
@@ -180,10 +191,14 @@ export class BlockchainService implements OnModuleInit {
       );
 
       // Process in chunks to avoid RPC limits
-      const chunkSize = 2000;
+      const chunkSize =
+        this.configService.get<number>("blockchain.blockQueryChunk") || 2000;
+      const chunkDelay =
+        this.configService.get<number>("blockchain.blockQueryDelayMs") || 0;
       for (let start = fromBlock; start <= safeBlock; start += chunkSize) {
         const end = Math.min(start + chunkSize - 1, safeBlock);
         await this.processBlockRange(start, end);
+        await this.delay(chunkDelay);
       }
 
       this.logger.log(`Backfill complete. Processed up to block ${safeBlock}`);
@@ -545,10 +560,17 @@ export class BlockchainService implements OnModuleInit {
         const fromBlock = this.contractEntity.lastProcessedBlock + 1;
 
         if (fromBlock <= safeBlock) {
-          this.logger.debug(
-            `Polling: processing blocks ${fromBlock} to ${safeBlock}`
-          );
-          await this.processBlockRange(fromBlock, safeBlock);
+          const chunkSize =
+            this.configService.get<number>("blockchain.blockQueryChunk") ||
+            2000;
+          const chunkDelay =
+            this.configService.get<number>("blockchain.blockQueryDelayMs") || 0;
+          for (let start = fromBlock; start <= safeBlock; start += chunkSize) {
+            const end = Math.min(start + chunkSize - 1, safeBlock);
+            this.logger.debug(`Polling: processing blocks ${start} to ${end}`);
+            await this.processBlockRange(start, end);
+            await this.delay(chunkDelay);
+          }
         }
       } catch (error) {
         this.logger.error(`Polling error: ${error.message}`, error.stack);

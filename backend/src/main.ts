@@ -9,10 +9,18 @@ async function bootstrap() {
   // Enable CORS with safer defaults in production
   const nodeEnv = process.env.NODE_ENV || "development";
   const corsOriginEnv = process.env.CORS_ORIGIN;
+  // Support comma-separated origins in env (e.g., "http://localhost:8080,http://localhost:4173")
+  const parsedOrigins =
+    corsOriginEnv && corsOriginEnv.includes(",")
+      ? corsOriginEnv
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => !!s)
+      : corsOriginEnv;
   const corsOrigin =
     nodeEnv === "production"
-      ? corsOriginEnv || false // disable CORS if not explicitly configured
-      : corsOriginEnv || "*"; // dev default
+      ? parsedOrigins || false // disable CORS if not explicitly configured
+      : parsedOrigins || "*"; // dev default
 
   app.enableCors({
     origin: corsOrigin,

@@ -47,18 +47,15 @@ async function main() {
     console.log(`   Balance after: ${ethers.formatEther(balanceAfter)} ETH`);
 
     // Check subscription status
-    const subscription = await contract.subscriptions(wallet.address);
+    const expiry = await contract.subscriptionExpiry(wallet.address);
+    const active = await contract.isActive(wallet.address);
     console.log(`\n🔍 Subscription Status:`);
+    console.log(`   Active: ${active}`);
     console.log(
-      `   Start: ${new Date(
-        Number(subscription.startTime) * 1000
-      ).toISOString()}`
-    );
-    console.log(
-      `   End: ${new Date(Number(subscription.endTime) * 1000).toISOString()}`
+      `   Expiry: ${new Date(Number(expiry) * 1000).toISOString()}`
     );
 
-    return { txHash: tx.hash, receipt, subscription };
+    return { txHash: tx.hash, receipt, expiry, active };
   } catch (error: any) {
     console.error(`❌ Error:`, error.message);
     process.exit(1);
