@@ -1,9 +1,11 @@
 # Creator Split Paywall
 
-[![CI](https://github.com/jorge210488/creator-split-paywall/actions/workflows/ci.yml/badge.svg)](https://github.com/jorge210488/creator-split-paywall/actions/workflows/ci.yml)
-[![Deploy Sepolia](https://github.com/jorge210488/creator-split-paywall/actions/workflows/deploy-sepolia.yml/badge.svg)](https://github.com/jorge210488/creator-split-paywall/actions/workflows/deploy-sepolia.yml)
-[![Release](https://img.shields.io/github/v/release/jorge210488/creator-split-paywall?label=release)](https://github.com/jorge210488/creator-split-paywall/releases)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+![Creator Split Paywall – Swagger](screens/swagger.png)
+![Creator Split Paywall – Docker Desktop](screens/docker-desktop.png)
+![Creator Split Paywall – Tests](screens/tests.png)
+![Creator Split Paywall – Etherscan Subscription Started](screens/etherscan-subscription-started.png)
+![Creator Split Paywall – Webhooks Anomalies](screens/webhooks-anomalies.png)
+![Creator Split Paywall – Subscription Status](screens/subscription-status.png)
 
 > A decentralized subscription paywall that automatically splits revenue among multiple payees while emitting rich on-chain + off-chain telemetry for analytics and anomaly detection.
 
@@ -133,6 +135,17 @@ cd backend && npm install && npm run start:dev
 # Analytics worker (if not launched via compose):
 cd analytics && pip install -r requirements.txt && python celery_app.py
 ```
+
+### API Docs (Swagger)
+
+Once the backend is running, open:
+
+- `http://localhost:3000/api/docs`
+
+Notes:
+
+- Swagger is enabled by default (`SWAGGER_ENABLED=true`).
+- You can disable it by setting `SWAGGER_ENABLED=false` in `backend/.env`.
 
 ### End-to-End Test Harness
 
